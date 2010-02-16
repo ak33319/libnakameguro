@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="jar" name="Hadoop Test">
+  <target name="init">
+    <mkdir dir="build" />
+  </target>
+  <target name="compile" depends="init">
+    <javac srcdir="src" destdir="build" classpath="./lib/hadoop-0.20.1-core.jar" />
+  </target>
+  <target name="jar" depends="compile">
+    <jar destfile="hadoop-test.jar" basedir="build" includes="*.class" />
+  </target>
+  <target name="clean">
+    <delete>
+      <fileset dir="build" includes="*.class" />
+      <fileset dir="." includes="*jar" />
+    </delete>
+  </target>
+</project>
