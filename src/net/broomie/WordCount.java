@@ -1,12 +1,12 @@
+/**
+ * WordCount - the class for countint words from japanese doc.
+ */
+package net.broomie;
 
-
-//import net.broomie.Tokenizer;
+import static net.broomie.ConstantsClass.*;
 
 import java.io.IOException;
 import java.util.EnumSet;
-import java.util.StringTokenizer;
-
-
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -15,47 +15,80 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
-
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.util.GenericOptionsParser;
 
+/**
+ *
+ * @author kimura
+ *
+ */
+public final class WordCount {
 
+    /** private constructor. */
+    private WordCount() { }
 
-
-
-public class WordCount {
-
+    /**
+     *
+     * @author kimura
+     *
+     */
     public static class TokenizerMapper
             extends Mapper<Object, Text, Text, IntWritable> {
-        private static final IntWritable one = new IntWritable(1);
+
+        /** the object for value of Mapper. */
+        private static final IntWritable ONE = new IntWritable(1);
+
+        /** the object for key of Mapper. */
         private Text word = new Text();
+
+        /** Tokenizer instance. */
         private Tokenizer tokenizer = new Tokenizer();
 
-        public void map(Object key, Text value, Context context)
+        /**
+        * @param key map key.
+         * @param value map value.
+         * @param context Context object.
+         * @throws IOException exception for input error.
+         * @throws InterruptedException exception.
+         */
+        @Override
+        public final void map(Object key, Text value, Context context)
                 throws IOException, InterruptedException {
 
             String buf = value.toString();
             System.err.println(buf.length());
-                if(buf.length() > 200) {
-                    buf = buf.substring(0, 200);
+                if (buf.length() > MAX_LINE_LENGTH) {
+                    buf = buf.substring(0, MAX_LINE_LENGTH);
                 }
-            String[] result = tokenizer.getToken(buf, EnumSet.of(Tokenizer.ExtractType.Noun));
+            String[] result =
+                tokenizer.getToken(buf, EnumSet.of(Tokenizer.ExtractType.Noun));
             for (String token : result) {
                     word.set(token);
-                    context.write(word, one);
+                    context.write(word, ONE);
                 }
         }
     }
 
+    /**
+     *
+     * @author kimura
+     *
+     */
     public static class IntSumReducer
             extends Reducer<Text, IntWritable, Text, IntWritable> {
 
+        /** value object for store value of each key. */
         private IntWritable result = new IntWritable();
 
-        public void reduce(Text key, Iterable<IntWritable> values,
+        /**
+         * @param key the key for reducer.
+         * @param values the values for reducer.
+         * @param context context object.
+         * @exception IOException exception for readind data erorr.
+         * @exception InterruptedException exception.
+         */
+        public final void reduce(Text key, Iterable<IntWritable> values,
                 Context context) throws IOException, InterruptedException {
            int sum = 0;
            for (IntWritable val : values) {
@@ -66,10 +99,14 @@ public class WordCount {
         }
     }
 
+    /**
+     *
+     * @param args arguments from command line.
+     * @throws Exception exception.
+     */
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        String[] otherArgs = new org.apache.hadoop.util.GenericOptionsParser(conf, args).getRemainingArgs();
-        if (otherArgs.length != 2) {
+        if (args.length != 2) {
             System.err.println("Usage: wordcount <in> <out>");
             System.exit(2);
         }
@@ -80,9 +117,8 @@ public class WordCount {
         job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        //FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
-        TextInputFormat.addInputPath(job, new Path(otherArgs[0]));
-        FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        TextInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        System.exit(job.waitForCompletion(true) ? NORMAL_FLAG : ERROR_FLAG);
     }
 }

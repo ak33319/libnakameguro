@@ -1,33 +1,63 @@
+package net.broomie;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.EnumSet;
 
 import net.java.sen.StringTagger;
 import net.java.sen.Token;
 
+import static net.broomie.ConstantsClass.*;
+
+/**
+ *
+ * @author kimura
+ *
+ */
 public class Tokenizer {
 
-    private final String NounDef = "名詞";
-    private final String VerbDef = "動詞";
-    private final String AdjDef = "形容";
+    /** Noun string definition. */
+    private final String nounDef = "名詞";
 
+    /** Verb string definition. */
+    private final String verbDef = "動詞";
+
+    /** Adjective string definition. */
+    private final String adjDef = "形容";
+
+    /**
+     *
+     * @author kimura
+     *
+     */
     public static enum ExtractType {
-        Noun, Verb, Adj,
+        /** Noun type definition. */
+        Noun,
+        /** Verb type definition. */
+        Verb,
+        /** Adjective type definition .*/
+        Adj,
     }
 
+    /** tagger object for extract token from Japanese document. */
     private StringTagger tagger;
 
-    private LinkedHashMap<String, Integer> words;
-
+    /**
+     * Constructor for Tokenizer.
+     */
     public Tokenizer() {
         try {
-            tagger = StringTagger.getInstance("/usr/local/sen/conf/sen.xml");
+            tagger = StringTagger.getInstance(SEN_CONF_PATH);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     *
+     * @param str the string object for extracting tokens.
+     * @param type the extracting type. Tokenizer.Noun etc...
+     * @return tokens.
+     */
     public final String[] getToken(String str, EnumSet<ExtractType> type) {
         ArrayList<String> result = new ArrayList<String>();
 
@@ -37,15 +67,15 @@ public class Tokenizer {
             if (token != null) {
                 for (int i = 0; i < token.length; i++) {
                     String pos = token[i].getPos().substring(0, 2);
-                    if (pos.equals(NounDef)) {
+                    if (pos.equals(nounDef)) {
                         if (type.contains(ExtractType.Noun)) {
                             result.add(token[i].getBasicString());
                         }
-                    } else if (pos.equals(VerbDef)) {
+                    } else if (pos.equals(verbDef)) {
                         if (type.contains(ExtractType.Verb)) {
                             result.add(token[i].getBasicString());
                         }
-                    } else if (pos.equals(AdjDef)) {
+                    } else if (pos.equals(adjDef)) {
                         if (type.contains(ExtractType.Adj)) {
                             result.add(token[i].getBasicString());
                         }
