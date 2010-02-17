@@ -10,9 +10,7 @@
     <jar destfile="hadoop-test.jar" basedir="build" includes="*.class" />
   </target>
   <target name="clean">
-    <delete>
-      <fileset dir="build" includes="*.class" />
-      <fileset dir="." includes="*jar" />
-    </delete>
+    <delete file="hadoop-test.jar" />
+    <delete dir="./build" />
   </target>
 </project>
