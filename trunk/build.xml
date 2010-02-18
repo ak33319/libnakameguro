@@ -7,7 +7,7 @@
     <javac srcdir="src" destdir="build" classpath="./lib/hadoop-0.20.1-core.jar" />
   </target>
   <target name="jar" depends="compile">
-    <jar destfile="hadoop-test.jar" basedir="build" includes="*.class" />
+    <jar destfile="hadoop-test.jar" basedir="build" />
   </target>
   <target name="clean">
     <delete file="hadoop-test.jar" />
