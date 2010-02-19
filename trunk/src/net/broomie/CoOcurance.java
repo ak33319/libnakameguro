@@ -24,9 +24,9 @@ import java.util.Iterator;
 import java.lang.StringBuilder;
 
 /**
- * 
+ *
  * @author kimura
- * 
+ *
  */
 public final class CoOcurance {
 
@@ -169,6 +169,7 @@ public final class CoOcurance {
         job.setReducerClass(CoOccuranceReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
+        job.setNumReduceTasks(2);
         TextInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? NORMAL_FLAG : ERROR_FLAG);
