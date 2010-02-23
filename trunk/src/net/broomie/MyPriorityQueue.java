@@ -85,38 +85,58 @@ public class MyPriorityQueue {
     private int maxKeyNum;
 
     /**
+     * comparator instance.
+     */
+    private MyComparator comparator;
+
+    /**
      *
      * @param maxNum aaa
      */
     MyPriorityQueue(int maxNum) {
-        queue = new PriorityQueue<Entity>(maxNum, new MyComparator());
+        comparator = new MyComparator();
+        queue = new PriorityQueue<Entity>(maxNum, comparator);
         maxKeyNum = maxNum;
     }
 
     /**
      *
-     * @param key aaa
-     * @param val aaa
+     * @return queue size.
+     */
+    final int getSize() {
+        return queue.size();
+    }
+
+    /**
+     *
+     * @param key input key.
+     * @param val value of the key.
      */
     public final void add(String key, int val) {
-        Entity ent = new Entity(key, val);
-        queue.add(ent);
-        if (queue.size() > maxKeyNum) {
-            queue.poll();
+        Entity newEnt = new Entity(key, val);
+        Entity peekEnt = queue.peek();
+        if (peekEnt == null) {
+            queue.add(newEnt);
+            return;
+        }
+        int result = comparator.compare(newEnt, peekEnt);
+        if (result > 0) {
+            if (queue.size() >= maxKeyNum) {
+                queue.poll();
+            }
+            queue.add(newEnt);
         }
     }
 
     /**
-     * aaa.
+     *
+     * @return Entity
      */
-    public final void showQueue() {
-        while (true) {
-            Entity ent = queue.poll();
-            if (ent == null) {
-                System.out.println("break");
-                break;
-            }
-            System.out.println(ent.getKey() + " " + ent.getVal());
+    public final Entity poll() {
+        if (queue.size() > 0) {
+            return queue.poll();
+        } else {
+            return null;
         }
     }
 
@@ -134,8 +154,14 @@ public class MyPriorityQueue {
         queue.add("f", 6);
         queue.add("a", 1);
         queue.add("b", 2);
+        queue.add("h", 8);
+        queue.add("i", 10);
 
-        queue.showQueue();
+
+        Entity ent;
+        while ((ent = queue.poll()) != null) {
+            System.out.println(ent.getKey() + " " + ent.getVal());
+        }
 
     }
 
