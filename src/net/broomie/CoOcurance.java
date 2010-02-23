@@ -75,7 +75,6 @@ public final class CoOcurance {
                         aroundToken.set(result[i - j]);
                         context.write(targetToken, aroundToken);
                     }
-
                     if (i + j < resultLength) {
                         aroundToken.set(result[i + j]);
                         context.write(targetToken, aroundToken);
@@ -126,10 +125,8 @@ public final class CoOcurance {
 
             LinkedHashMap<String, Integer> counter =
                 new LinkedHashMap<String, Integer>(1000);
-            System.err.println("KEY:" + key);
             for (Text wordBuf : values) {
                 String word = wordBuf.toString();
-                System.err.println(word);
                 if (!counter.containsKey(word)) {
                     counter.put(word, 1);
                 } else {
