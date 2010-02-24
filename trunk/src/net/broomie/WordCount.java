@@ -17,6 +17,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.filecache.DistributedCache;
 
 /**
  *
@@ -24,7 +25,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
  *
  */
 public final class WordCount {
-
+    
     /** private constructor. */
     private WordCount() { }
 
@@ -106,6 +107,7 @@ public final class WordCount {
      */
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
+
         if (args.length != 2) {
             System.err.println("Usage: wordcount <in> <out>");
             System.exit(2);
@@ -119,6 +121,9 @@ public final class WordCount {
         job.setOutputValueClass(IntWritable.class);
         TextInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+        
+
         System.exit(job.waitForCompletion(true) ? NORMAL_FLAG : ERROR_FLAG);
     }
 }

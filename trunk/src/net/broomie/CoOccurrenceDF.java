@@ -26,17 +26,17 @@ import java.util.EnumSet;
  * @author kimura
  *
  */
-public final class CoOccurrence {
+public final class CoOccurrenceDF {
 
     /** private constructor. */
-    private CoOccurrence() { }
+    private CoOccurrenceDF() { }
 
     /**
      *
      * @author kimura
      *
      */
-    public static class CoOccurrenceMapper extends
+    public static class CoOccurrenceDFMapper extends
         Mapper<Object, Text, Text, IntWritable> {
 
         /** key object. */
@@ -90,7 +90,7 @@ public final class CoOccurrence {
      * @author kimura
      *
      */
-    public static class CoOccurrenceReducer extends
+    public static class CoOccurrenceDFReducer extends
         Reducer<Text, IntWritable, Text, Text> {
 
         /**
@@ -129,9 +129,9 @@ public final class CoOccurrence {
         }
         Configuration conf = new Configuration();
         Job job = new Job(conf, "co-occurrence");
-        job.setJarByClass(CoOccurrence.class);
-        job.setMapperClass(CoOccurrenceMapper.class);
-        job.setReducerClass(CoOccurrenceReducer.class);
+        job.setJarByClass(CoOccurrenceDF.class);
+        job.setMapperClass(CoOccurrenceDFMapper.class);
+        job.setReducerClass(CoOccurrenceDFReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         job.setNumReduceTasks(2);
