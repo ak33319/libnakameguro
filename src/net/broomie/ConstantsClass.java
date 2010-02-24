@@ -27,4 +27,7 @@ public final class ConstantsClass {
 
     /** the configuration path for Sen. */
     public static final String SEN_CONF_PATH = "/usr/local/sen/conf/sen.xml";
+
+    /** dfdb path (distributed cached). */
+    public static final String DFDB_PATH = "/user/kimura/wiki_count.txt";
 }

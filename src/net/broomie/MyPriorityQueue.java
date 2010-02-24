@@ -26,14 +26,14 @@ public class MyPriorityQueue {
         /**
          *  aa.
          */
-        private int val;
+        private double val;
 
         /**
          *
          * @param key aa
          * @param val aa
          */
-        public Entity(String key, int val) {
+        public Entity(String key, double val) {
             this.key = key;
             this.val = val;
         }
@@ -50,7 +50,7 @@ public class MyPriorityQueue {
          *
          * @return aa
          */
-        public final int getVal() {
+        public final double getVal() {
             return val;
         }
     }
@@ -112,7 +112,7 @@ public class MyPriorityQueue {
      * @param key input key.
      * @param val value of the key.
      */
-    public final void add(String key, int val) {
+    public final void add(String key, double val) {
         Entity newEnt = new Entity(key, val);
         Entity peekEnt = queue.peek();
         if (peekEnt == null) {

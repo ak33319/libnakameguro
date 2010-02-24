@@ -16,12 +16,15 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.filecache.DistributedCache;
+
 
 import static net.broomie.ConstantsClass.*;
+
 import java.util.EnumSet;
-import java.util.Set;
 import java.util.Iterator;
-import java.lang.StringBuilder;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 /**
  *
@@ -108,6 +111,59 @@ public final class CoOcurance {
     public static class CoOccuranceReducer extends
             Reducer<Text, Text, Text, Text> {
 
+        /** tf-idf map. */
+        private LinkedHashMap<String, Integer> wordCount =
+            new LinkedHashMap<String, Integer>(100000);
+
+        @Override
+        public final void setup(Context context) {
+            try {
+                String dfDBCacheName = new Path(DFDB_PATH).getName();
+                Path[] cacheFiles =
+                    DistributedCache.getLocalCacheFiles(
+                            context.getConfiguration());
+                if (cacheFiles != null) {
+                    for (Path cachePath : cacheFiles) {
+                        if (cachePath.getName().equals(dfDBCacheName)) {
+                            loadCacheFile(cachePath);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+
+            }
+        }
+
+        /**
+         *
+         * @param cachePath cache file path
+         * @throws IOException io exception,
+         */
+        final void loadCacheFile(Path cachePath) throws IOException {
+            System.out.println("[LOAD]" + cachePath);
+            BufferedReader wordReader =
+                new BufferedReader(new FileReader(cachePath.toString()));
+            try {
+                String line;
+                System.out.println("start read");
+                while ((line = wordReader.readLine()) != null) {
+                    System.out.println(line);
+                    String[] wordCountBuf = line.split("\t");
+                    wordCount.put(wordCountBuf[0],
+                            Integer.valueOf(wordCountBuf[1]));
+                }
+                System.out.println("end read");
+            } finally {
+                System.out.println("open erro");
+                wordReader.close();
+            }
+        }
+
+        /**
+         * val.
+         */
+        private Text val = new Text();
+
         /**
          * @param key
          *            the key for reducer.
@@ -123,26 +179,40 @@ public final class CoOcurance {
         public final void reduce(Text key, Iterable<Text> values,
                 Context context) throws IOException, InterruptedException {
 
-            LinkedHashMap<String, Integer> counter =
-                new LinkedHashMap<String, Integer>(1000);
+            LinkedHashMap<String, Double> counter =
+                new LinkedHashMap<String, Double>(1000);
             for (Text wordBuf : values) {
                 String word = wordBuf.toString();
                 if (!counter.containsKey(word)) {
-                    counter.put(word, 1);
+                    counter.put(word, 1.0);
                 } else {
-                    counter.put(word, counter.get(word).intValue() + 1);
+                    counter.put(word, counter.get(word).intValue() + 1.0);
                 }
             }
-            Set<String> tokensSet = counter.keySet();
-            Iterator<String> itr = tokensSet.iterator();
-            StringBuilder result = new StringBuilder();
-            while (itr.hasNext()) {
-                String token = (String) itr.next();
-                Integer valBuf = (Integer) counter.get(token);
-                result.append(token + ":" + valBuf + "\t");
+
+
+            MyPriorityQueue queue = new MyPriorityQueue(100);
+            Iterator<String> aroundWordsItr = counter.keySet().iterator();
+            while (aroundWordsItr.hasNext()) {
+                String word = aroundWordsItr.next();
+                double score = 0.0;
+                if (wordCount.containsKey(word)) {
+                    score = 1.0 / Math.pow(counter.get(word) + 5, 0.8);
+                    queue.add(word, score);
+                }
             }
-            Text resultVal = new Text(result.toString());
-            context.write(key, resultVal);
+
+            StringBuilder resultVal = new StringBuilder();
+            MyPriorityQueue.Entity ent;
+            while ((ent = queue.poll()) != null) {
+                if (resultVal.length() > 0) {
+                    resultVal.insert(0, "\t");
+                }
+                String resultScore = String.format("%.2f", ent.getVal());
+                resultVal.insert(0, ent.getKey() + ":" + resultScore);
+            }
+            val.set(resultVal.toString());
+            context.write(key, val);
         }
     }
 
@@ -159,6 +229,8 @@ public final class CoOcurance {
             System.err.println("Usage: wordcount <in> <out>");
             System.exit(2);
         }
+
+        DistributedCache.addCacheFile(new Path(DFDB_PATH).toUri(), conf);
         Job job = new Job(conf, "word count");
         job.setJarByClass(CoOcurance.class);
         job.setMapperClass(CoOccuranceMapper.class);
