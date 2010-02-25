@@ -73,7 +73,7 @@ public final class CoOcurance {
 
             for (int i = 0; i < resultLength; i++) {
                     targetToken.set(result[i]);
-                for (int j = 1; j <= 5; j++) {
+                for (int j = 1; j <= 10; j++) {
                     if (i - j >= 0) {
                         aroundToken.set(result[i - j]);
                         context.write(targetToken, aroundToken);
@@ -195,10 +195,12 @@ public final class CoOcurance {
             Iterator<String> aroundWordsItr = counter.keySet().iterator();
             while (aroundWordsItr.hasNext()) {
                 String word = aroundWordsItr.next();
-                double score = counter.get(word);
-                if (wordCount.containsKey(word)) {
-                    score = 1.0 / Math.pow(counter.get(word) + 5.0, 0.8);
-                    queue.add(word, score);
+                if (word.equals(key.toString())) {
+                    double score = counter.get(word);
+                    if (wordCount.containsKey(word)) {
+                        score = score / Math.pow(counter.get(word) + 10.0, 0.5);
+                        queue.add(word, score);
+                    }
                 }
             }
 
