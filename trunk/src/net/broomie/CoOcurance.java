@@ -195,7 +195,7 @@ public final class CoOcurance {
             Iterator<String> aroundWordsItr = counter.keySet().iterator();
             while (aroundWordsItr.hasNext()) {
                 String word = aroundWordsItr.next();
-                if (word.equals(key.toString())) {
+                if (!word.equals(key.toString())) {
                     double score = counter.get(word);
                     if (wordCount.containsKey(word)) {
                         score = score / Math.pow(counter.get(word) + 10.0, 0.5);
