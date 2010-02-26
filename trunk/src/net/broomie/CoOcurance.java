@@ -198,7 +198,8 @@ public final class CoOcurance {
                 if (!word.equals(key.toString())) {
                     double score = counter.get(word);
                     if (wordCount.containsKey(word)) {
-                        score = score / Math.pow(counter.get(word) + 10.0, 0.5);
+                        score =
+                            score / Math.pow(wordCount.get(word) + 10.0, 0.8);
                         queue.add(word, score);
                     }
                 }
@@ -240,7 +241,7 @@ public final class CoOcurance {
         job.setReducerClass(CoOccuranceReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        job.setNumReduceTasks(2);
+        job.setNumReduceTasks(4);
         TextInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? NORMAL_FLAG : ERROR_FLAG);

@@ -24,6 +24,9 @@ public class Tokenizer {
     /** Adjective string definition. */
     private final String adjDef = "形容";
 
+    /** Unknown string definition. */
+    private final String unkDef = "未知";
+
     /**
      *
      * @author kimura
@@ -36,6 +39,8 @@ public class Tokenizer {
         Verb,
         /** Adjective type definition .*/
         Adj,
+        /** Unknown type definition. */
+        Unk,
     }
 
     /** tagger object for extract token from Japanese document. */
@@ -77,6 +82,10 @@ public class Tokenizer {
                         }
                     } else if (pos.equals(adjDef)) {
                         if (type.contains(ExtractType.Adj)) {
+                            result.add(token[i].getBasicString());
+                        }
+                    } else if (pos.equals(unkDef)) {
+                        if (type.contains(ExtractType.Unk)) {
                             result.add(token[i].getBasicString());
                         }
                     }
