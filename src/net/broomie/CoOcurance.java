@@ -65,7 +65,7 @@ public final class CoOcurance {
                 buf = buf.substring(0, MAX_LINE_LENGTH);
             }
             String[] result = tokenizer.getToken(buf, EnumSet
-                    .of(Tokenizer.ExtractType.Noun));
+						 .of(Tokenizer.ExtractType.Noun, Tokenizer.ExtractType.Unk));
 
 
             int resultLength = result.length;
@@ -198,6 +198,7 @@ public final class CoOcurance {
                 if (!word.equals(key.toString())) {
                     double score = counter.get(word);
                     if (wordCount.containsKey(word)) {
+			    //score = score / Math.pow(wordCount.get(word) + 10.0, 0.8);
                         score =
                             score / Math.pow(wordCount.get(word) + 10.0, 0.8);
                         queue.add(word, score);
