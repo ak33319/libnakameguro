@@ -63,7 +63,7 @@ public final class WordCount {
                     buf = buf.substring(0, MAX_LINE_LENGTH);
                 }
             String[] result =
-                tokenizer.getToken(buf, EnumSet.of(Tokenizer.ExtractType.Noun));
+                tokenizer.getToken(buf, EnumSet.of(Tokenizer.ExtractType.Noun, Tokenizer.ExtractType.Unk));
             for (String token : result) {
                     word.set(token);
                     context.write(word, ONE);
