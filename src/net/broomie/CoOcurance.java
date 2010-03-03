@@ -25,6 +25,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.regex.*;
 
 /**
  *
@@ -56,6 +57,8 @@ public final class CoOcurance {
         /** Tokenizer instance. */
         private Tokenizer tokenizer = new Tokenizer();
 
+	private Pattern pattern = Pattern.compile("^[0-9]+$");
+
         @Override
         public final void map(Object key, Text value, Context context)
                 throws IOException, InterruptedException {
@@ -70,35 +73,23 @@ public final class CoOcurance {
 
             int resultLength = result.length;
 
-
             for (int i = 0; i < resultLength; i++) {
-                    targetToken.set(result[i]);
-                for (int j = 1; j <= 10; j++) {
-                    if (i - j >= 0) {
-                        aroundToken.set(result[i - j]);
-                        context.write(targetToken, aroundToken);
-                    }
-                    if (i + j < resultLength) {
-                        aroundToken.set(result[i + j]);
-                        context.write(targetToken, aroundToken);
-                    }
-                }
+		Matcher matcher = pattern.matcher(result[i]);
+		if ((matcher.matches()) == false) {
+		    targetToken.set(result[i]);
+		    for (int j = 1; j <= 10; j++) {
+			if (i - j >= 0) {
+			    aroundToken.set(result[i - j]);
+			    context.write(targetToken, aroundToken);
+			}
+			if (i + j < resultLength) {
+			    aroundToken.set(result[i + j]);
+			    context.write(targetToken, aroundToken);
+			}
+		    }
+		}
 
             }
-            /*
-            String preWord = "";
-            for (String postWord : result) {
-
-                if (preWord.length() > 0) {
-                    preToken.set(preWord);
-                    postToken.set(postWord);
-                    context.write(preToken, postToken);
-                    // context.write(postToken, preToken);
-
-                }
-                preWord = postWord;
-            }
-            */
         }
 
     }
@@ -242,7 +233,7 @@ public final class CoOcurance {
         job.setReducerClass(CoOccuranceReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        job.setNumReduceTasks(4);
+        job.setNumReduceTasks(8);
         TextInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? NORMAL_FLAG : ERROR_FLAG);
