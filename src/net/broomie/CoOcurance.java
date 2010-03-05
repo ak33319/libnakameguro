@@ -34,6 +34,27 @@ import java.util.regex.*;
  */
 public final class CoOcurance {
 
+    public static String normalize(String str) {
+	StringBuilder buf = new StringBuilder(str);
+	for (int i = 0; i < buf.length(); i++) {
+	    char c = buf.charAt(i);
+	    // a - z
+	    if (c >= 65345 && c <= 65370) {
+		buf.setCharAt(i, (char) (c - 65345 + 97));
+		// A - Z
+	    } else if (c >= 65313 && c <= 65538) {
+		buf.setCharAt(i, (char) (c - 65313 + 65));
+		//  0 - 9
+	    } else if (c >= 65296 && c <= 65305) {
+		buf.setCharAt(i, (char) (c - 65296 + 48));
+	    }
+	}
+
+	return buf.toString().toLowerCase();
+    }
+
+
+
     /**
      * private constructor.
      */
@@ -67,9 +88,9 @@ public final class CoOcurance {
             if (buf.length() > MAX_LINE_LENGTH) {
                 buf = buf.substring(0, MAX_LINE_LENGTH);
             }
+	    buf = normalize(buf);
             String[] result = tokenizer.getToken(buf, EnumSet
 						 .of(Tokenizer.ExtractType.Noun, Tokenizer.ExtractType.Unk));
-
 
             int resultLength = result.length;
 
@@ -79,12 +100,18 @@ public final class CoOcurance {
 		    targetToken.set(result[i]);
 		    for (int j = 1; j <= 10; j++) {
 			if (i - j >= 0) {
-			    aroundToken.set(result[i - j]);
-			    context.write(targetToken, aroundToken);
+			    matcher = pattern.matcher(result[i - j]);
+			    if ((matcher.matches()) == false ) {
+				aroundToken.set(result[i - j]);
+				context.write(targetToken, aroundToken);
+			    }
 			}
 			if (i + j < resultLength) {
-			    aroundToken.set(result[i + j]);
-			    context.write(targetToken, aroundToken);
+			    matcher = pattern.matcher(result[i + j]);
+			    if ((matcher.matches()) == false ) {
+				aroundToken.set(result[i + j]);
+				context.write(targetToken, aroundToken);
+			    }
 			}
 		    }
 		}
@@ -131,7 +158,6 @@ public final class CoOcurance {
          * @throws IOException io exception,
          */
         final void loadCacheFile(Path cachePath) throws IOException {
-            System.out.println("[LOAD]" + cachePath);
             BufferedReader wordReader =
                 new BufferedReader(new FileReader(cachePath.toString()));
             try {
@@ -189,7 +215,6 @@ public final class CoOcurance {
                 if (!word.equals(key.toString())) {
                     double score = counter.get(word);
                     if (wordCount.containsKey(word)) {
-			    //score = score / Math.pow(wordCount.get(word) + 10.0, 0.8);
                         score =
                             score / Math.pow(wordCount.get(word) + 10.0, 0.8);
                         queue.add(word, score);
