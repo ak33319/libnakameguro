@@ -121,9 +121,6 @@ public final class WordCount {
         job.setOutputValueClass(IntWritable.class);
         TextInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
-        
-
         System.exit(job.waitForCompletion(true) ? NORMAL_FLAG : ERROR_FLAG);
     }
 }
