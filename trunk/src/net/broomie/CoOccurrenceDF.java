@@ -123,7 +123,7 @@ public final class CoOccurrenceDF {
      * @throws Exception execpt.
      */
     public static void main(String[] args) throws Exception {
-        if (args.length != 2) {
+        if (args.length != 1) {
             System.err.println("Usage: wordcount <in> <out>");
             System.exit(2);
         }
@@ -136,7 +136,7 @@ public final class CoOccurrenceDF {
         job.setOutputValueClass(IntWritable.class);
         job.setNumReduceTasks(2);
         TextInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+	FileOutputFormat.setOutputPath(job, new Path(DFDB_PATH));
         System.exit(job.waitForCompletion(true) ? NORMAL_FLAG : ERROR_FLAG);
     }
 }
