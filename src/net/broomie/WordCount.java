@@ -25,7 +25,7 @@ import org.apache.hadoop.filecache.DistributedCache;
  *
  */
 public final class WordCount {
-    
+
     /** private constructor. */
     private WordCount() { }
 
@@ -63,7 +63,8 @@ public final class WordCount {
                     buf = buf.substring(0, MAX_LINE_LENGTH);
                 }
             String[] result =
-                tokenizer.getToken(buf, EnumSet.of(Tokenizer.ExtractType.Noun, Tokenizer.ExtractType.Unk));
+                tokenizer.getToken(buf, EnumSet.of(Tokenizer.ExtractType.Noun,
+                                                   Tokenizer.ExtractType.Unk));
             for (String token : result) {
                     word.set(token);
                     context.write(word, ONE);
@@ -107,7 +108,6 @@ public final class WordCount {
      */
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-
         if (args.length != 2) {
             System.err.println("Usage: wordcount <in> <out>");
             System.exit(2);

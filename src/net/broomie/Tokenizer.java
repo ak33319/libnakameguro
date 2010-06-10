@@ -68,7 +68,6 @@ public class Tokenizer {
 
         try {
             Token[] token = tagger.analyze(str);
-
             if (token != null) {
                 for (int i = 0; i < token.length; i++) {
                     String pos = token[i].getPos().substring(0, 2);
@@ -90,14 +89,11 @@ public class Tokenizer {
                         }
                     }
                 }
-
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return (String[]) result.toArray(new String[0]);
     }
-
 }

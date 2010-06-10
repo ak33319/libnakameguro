@@ -35,22 +35,22 @@ import java.util.regex.*;
 public final class CoOccurrence {
 
     public static String normalize(String str) {
-	StringBuilder buf = new StringBuilder(str);
-	for (int i = 0; i < buf.length(); i++) {
-	    char c = buf.charAt(i);
-	    // a - z
-	    if (c >= 65345 && c <= 65370) {
-		buf.setCharAt(i, (char) (c - 65345 + 97));
-		// A - Z
-	    } else if (c >= 65313 && c <= 65538) {
-		buf.setCharAt(i, (char) (c - 65313 + 65));
-		//  0 - 9
-	    } else if (c >= 65296 && c <= 65305) {
-		buf.setCharAt(i, (char) (c - 65296 + 48));
-	    }
-	}
+        StringBuilder buf = new StringBuilder(str);
+        for (int i = 0; i < buf.length(); i++) {
+            char c = buf.charAt(i);
+            // a - z
+            if (c >= 65345 && c <= 65370) {
+                buf.setCharAt(i, (char) (c - 65345 + 97));
+                // A - Z
+            } else if (c >= 65313 && c <= 65538) {
+                buf.setCharAt(i, (char) (c - 65313 + 65));
+                //  0 - 9
+            } else if (c >= 65296 && c <= 65305) {
+                buf.setCharAt(i, (char) (c - 65296 + 48));
+            }
+        }
 
-	return buf.toString().toLowerCase();
+        return buf.toString().toLowerCase();
     }
 
 
@@ -78,7 +78,7 @@ public final class CoOccurrence {
         /** Tokenizer instance. */
         private Tokenizer tokenizer = new Tokenizer();
 
-	private Pattern pattern = Pattern.compile("^[0-9]+$");
+        private Pattern pattern = Pattern.compile("^[0-9]+$");
 
         @Override
         public final void map(Object key, Text value, Context context)
@@ -88,37 +88,35 @@ public final class CoOccurrence {
             if (buf.length() > MAX_LINE_LENGTH) {
                 buf = buf.substring(0, MAX_LINE_LENGTH);
             }
-	    buf = normalize(buf);
+            buf = normalize(buf);
             String[] result = tokenizer.getToken(buf, EnumSet
-						 .of(Tokenizer.ExtractType.Noun, Tokenizer.ExtractType.Unk));
+                                                 .of(Tokenizer.ExtractType.Noun, Tokenizer.ExtractType.Unk));
 
             int resultLength = result.length;
 
             for (int i = 0; i < resultLength; i++) {
-		Matcher matcher = pattern.matcher(result[i]);
-		if ((matcher.matches()) == false) {
-		    targetToken.set(result[i]);
-		    for (int j = 1; j <= 10; j++) {
-			if (i - j >= 0) {
-			    matcher = pattern.matcher(result[i - j]);
-			    if ((matcher.matches()) == false ) {
-				aroundToken.set(result[i - j]);
-				context.write(targetToken, aroundToken);
-			    }
-			}
-			if (i + j < resultLength) {
-			    matcher = pattern.matcher(result[i + j]);
-			    if ((matcher.matches()) == false ) {
-				aroundToken.set(result[i + j]);
-				context.write(targetToken, aroundToken);
-			    }
-			}
-		    }
-		}
-
+                Matcher matcher = pattern.matcher(result[i]);
+                if ((matcher.matches()) == false) {
+                    targetToken.set(result[i]);
+                    for (int j = 1; j <= 10; j++) {
+                        if (i - j >= 0) {
+                            matcher = pattern.matcher(result[i - j]);
+                            if ((matcher.matches()) == false ) {
+                                aroundToken.set(result[i - j]);
+                                context.write(targetToken, aroundToken);
+                            }
+                        }
+                        if (i + j < resultLength) {
+                            matcher = pattern.matcher(result[i + j]);
+                            if ((matcher.matches()) == false ) {
+                                aroundToken.set(result[i + j]);
+                                context.write(targetToken, aroundToken);
+                            }
+                        }
+                    }
+                }
             }
         }
-
     }
 
     /**
@@ -263,5 +261,4 @@ public final class CoOccurrence {
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? NORMAL_FLAG : ERROR_FLAG);
     }
-
 }
