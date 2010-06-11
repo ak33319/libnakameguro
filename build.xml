@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project default="jar" name="Hadoop Test">
+<project default="jar" name="libnakameguro">
   <target name="init">
     <mkdir dir="build" />
   </target>
@@ -7,10 +7,10 @@
     <javac srcdir="src" destdir="build" classpath="./lib/hadoop-0.20.1-core.jar" />
   </target>
   <target name="jar" depends="compile">
-    <jar destfile="hadoop-test.jar" basedir="build" />
+    <jar destfile="libnakameguro.jar" basedir="build" />
   </target>
   <target name="clean">
-    <delete file="hadoop-test.jar" />
+    <delete file="libnakameguro.jar" />
     <delete dir="./build" />
   </target>
 </project>

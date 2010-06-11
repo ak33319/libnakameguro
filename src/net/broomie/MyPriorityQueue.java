@@ -161,7 +161,5 @@ public class MyPriorityQueue {
         while ((ent = queue.poll()) != null) {
             System.out.println(ent.getKey() + " " + ent.getVal());
         }
-
     }
-
 }
