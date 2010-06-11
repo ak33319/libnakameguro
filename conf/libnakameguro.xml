@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>libnakameguro properties.</comment>
+<entry key="libnakameguro.dfdbPath">/user/kimura/wiki_countl.txt</entry>
+<entry key="libnakameguro.senConfPath">/usr/local/sen/conf/sen.xml</entry>
+</properties>
