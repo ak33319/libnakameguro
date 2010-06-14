@@ -90,7 +90,7 @@ public final class CoOccurrence {
             }
             buf = normalize(buf);
             String[] result = tokenizer.getToken(buf, EnumSet
-                                                 .of(Tokenizer.ExtractType.Noun, Tokenizer.ExtractType.Unk));
+                    .of(Tokenizer.ExtractType.Noun, Tokenizer.ExtractType.Unk));
 
             int resultLength = result.length;
 
