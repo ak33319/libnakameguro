@@ -25,6 +25,9 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.filecache.DistributedCache;
 
+import net.broomie.lib.Tokenizer;
+import net.broomie.lib.MyPriorityQueue;
+
 import static net.broomie.ConstantsClass.*;
 
 
@@ -143,7 +146,6 @@ public final class CoOccurrence {
                     for (Path cachePath : cacheFiles) {
                         if (cachePath.getName().equals(dfdbPath)) {
                             System.err.println("start localcachefile");
-                            //loadCacheFile(cachePath.getName());
                             loadCacheFile(cachePath, context);
                         }
                     }
@@ -152,25 +154,25 @@ public final class CoOccurrence {
 
             }
         }
-        
-        public static FilenameFilter getFileRegexFilter(String regex) {  
-            final String regex_ = regex;  
-            return new FilenameFilter() {  
-                public boolean accept(File file, String name) {  
-                    boolean ret = name.matches(regex_);   
-                    return ret;  
-                }  
-            };  
-        }  
+
+        public static FilenameFilter getFileRegexFilter(String regex) {
+            final String regex_ = regex;
+            return new FilenameFilter() {
+                public boolean accept(File file, String name) {
+                    boolean ret = name.matches(regex_);
+                    return ret;
+                }
+            };
+        }
 
         /**
          *
          * @param cachePath cache file path
          * @throws IOException io exception,
          */
-        
+
         private final void loadCacheFile(Path cachePath, Context context) throws IOException {
-            
+
             File cacheFile = new File(cachePath.toString());
             if (cacheFile.isDirectory() == true) {
                 File[] caches = cacheFile.listFiles(getFileRegexFilter("part-.*-[0-9]*"));
@@ -191,13 +193,13 @@ public final class CoOccurrence {
                 }
             }
         }
-        
+
         private final void loadConfigurations(String configPath) {
             Configuration conf = new Configuration();
             conf.addResource(new Path("/home/kimura/Work/JavaProjects/LIBNAKAMEGURO/conf/libnakameguro.xml"));
             dfdbPath = conf.get("libnakamegruo.dfdb");
         }
-        
+
         /**
          * val.
          */
