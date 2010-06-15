@@ -1,4 +1,4 @@
-package net.broomie;
+package net.broomie.utils;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;

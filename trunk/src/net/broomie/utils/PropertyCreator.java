@@ -2,7 +2,7 @@
  * PropertyCreator - the class for countint words from japanese doc.
  */
 
-package net.broomie;
+package net.broomie.utils;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -13,7 +13,7 @@ public class PropertyCreator {
     public PropertyCreator() {
         Properties prop = new Properties();
         prop.setProperty("libnakameguro.senConfPath", "/usr/local/sen/conf/sen.xml");
-        prop.setProperty("libnakameguro.dfdbPath", "/user/kimura/wiki_countl.txt");
+        prop.setProperty("libnakameguro.dfdbPath", "/user/kimura/wiki_count.txt");
         try {
             OutputStream stream = new FileOutputStream("libnakameguro.xml");
             prop.storeToXML(stream, "libnakameguro properties.");
