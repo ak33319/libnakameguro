@@ -1,4 +1,4 @@
-package net.broomie;
+package net.broomie.lib;
 
 import java.util.Queue;
 import java.util.PriorityQueue;
@@ -93,7 +93,7 @@ public class MyPriorityQueue {
      *
      * @param maxNum aaa
      */
-    MyPriorityQueue(int maxNum) {
+    public MyPriorityQueue(int maxNum) {
         comparator = new MyComparator();
         queue = new PriorityQueue<Entity>(maxNum, comparator);
         maxKeyNum = maxNum;
@@ -103,7 +103,7 @@ public class MyPriorityQueue {
      *
      * @return queue size.
      */
-    final int getSize() {
+    public final int getSize() {
         return queue.size();
     }
 
