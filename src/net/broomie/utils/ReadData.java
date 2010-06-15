@@ -1,7 +1,7 @@
 /**
  * ReadData - the class for reading data from hdfs.
  */
-package net.broomie;
+package net.broomie.utils;
 
 import static net.broomie.ConstantsClass.*;
 import java.io.ByteArrayOutputStream;

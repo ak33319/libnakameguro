@@ -4,12 +4,19 @@
 package net.broomie;
 
 import java.io.IOException;
-
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.net.URI;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.LinkedHashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -18,14 +25,8 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.filecache.DistributedCache;
 
-
 import static net.broomie.ConstantsClass.*;
 
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.regex.*;
 
 /**
  *
@@ -130,18 +131,20 @@ public final class CoOccurrence {
         /** tf-idf map. */
         private LinkedHashMap<String, Integer> wordCount =
             new LinkedHashMap<String, Integer>(100000);
+        private String dfdbPath = "";
 
         @Override
         public final void setup(Context context) {
             try {
-                String dfDBCacheName = new Path(DFDB_PATH).getName();
-                Path[] cacheFiles =
-                    DistributedCache.getLocalCacheFiles(
-                            context.getConfiguration());
+                String path = "/home/kimura/Work/JavaProjects/LIBNAKAMEGURO/conf/libnakameguro.xml";
+                loadConfigurations(path);
+                Path[] cacheFiles = DistributedCache.getLocalCacheFiles(context.getConfiguration());
                 if (cacheFiles != null) {
                     for (Path cachePath : cacheFiles) {
-                        if (cachePath.getName().equals(dfDBCacheName)) {
-                            loadCacheFile(cachePath);
+                        if (cachePath.getName().equals(dfdbPath)) {
+                            System.err.println("start localcachefile");
+                            //loadCacheFile(cachePath.getName());
+                            loadCacheFile(cachePath, context);
                         }
                     }
                 }
@@ -149,31 +152,52 @@ public final class CoOccurrence {
 
             }
         }
+        
+        public static FilenameFilter getFileRegexFilter(String regex) {  
+            final String regex_ = regex;  
+            return new FilenameFilter() {  
+                public boolean accept(File file, String name) {  
+                    boolean ret = name.matches(regex_);   
+                    return ret;  
+                }  
+            };  
+        }  
 
         /**
          *
          * @param cachePath cache file path
          * @throws IOException io exception,
          */
-        final void loadCacheFile(Path cachePath) throws IOException {
-            BufferedReader wordReader =
-                new BufferedReader(new FileReader(cachePath.toString()));
-            try {
-                String line;
-                System.out.println("start read");
-                while ((line = wordReader.readLine()) != null) {
-                    System.out.println(line);
-                    String[] wordCountBuf = line.split("\t");
-                    wordCount.put(wordCountBuf[0],
-                            Integer.valueOf(wordCountBuf[1]));
+        
+        private final void loadCacheFile(Path cachePath, Context context) throws IOException {
+            
+            File cacheFile = new File(cachePath.toString());
+            if (cacheFile.isDirectory() == true) {
+                File[] caches = cacheFile.listFiles(getFileRegexFilter("part-.*-[0-9]*"));
+                for (File cache : caches) {
+                    BufferedReader wordReader = new BufferedReader(new FileReader(cache.getAbsolutePath()));
+                    String line;
+                    while ((line = wordReader.readLine()) != null) {
+                        String[] wordCountBuf = line.split("\t");
+                        wordCount.put(wordCountBuf[0] + "\t" + wordCountBuf[1], Integer.valueOf(wordCountBuf[2]));
+                    }
                 }
-                System.out.println("end read");
-            } finally {
-                System.out.println("open erro");
-                wordReader.close();
+            } else {
+                BufferedReader wordReader = new BufferedReader(new FileReader(cachePath.toString()));
+                String line;
+                while ((line = wordReader.readLine()) != null) {
+                    String[] wordCountBuf = line.split("\t");
+                    wordCount.put(wordCountBuf[0] + "\t" + wordCountBuf[1], Integer.valueOf(wordCountBuf[2]));
+                }
             }
         }
-
+        
+        private final void loadConfigurations(String configPath) {
+            Configuration conf = new Configuration();
+            conf.addResource(new Path("/home/kimura/Work/JavaProjects/LIBNAKAMEGURO/conf/libnakameguro.xml"));
+            dfdbPath = conf.get("libnakamegruo.dfdb");
+        }
+        
         /**
          * val.
          */
@@ -204,22 +228,20 @@ public final class CoOccurrence {
                     counter.put(word, counter.get(word).intValue() + 1.0);
                 }
             }
-
-
             MyPriorityQueue queue = new MyPriorityQueue(100);
+            System.err.println(counter.size());
             Iterator<String> aroundWordsItr = counter.keySet().iterator();
             while (aroundWordsItr.hasNext()) {
-                String word = aroundWordsItr.next();
+                String aroundWord = aroundWordsItr.next();
+                String word = key + "\t" + aroundWord;
                 if (!word.equals(key.toString())) {
-                    double score = counter.get(word);
+                    double score = counter.get(aroundWord);
                     if (wordCount.containsKey(word)) {
-                        score =
-                            score / Math.pow(wordCount.get(word) + 10.0, 0.8);
-                        queue.add(word, score);
+                    score = score / Math.pow(wordCount.get(word) + 10.0, 0.8);
+                        queue.add(aroundWord, score);
                     }
                 }
             }
-
             StringBuilder resultVal = new StringBuilder();
             MyPriorityQueue.Entity ent;
             while ((ent = queue.poll()) != null) {
@@ -243,20 +265,18 @@ public final class CoOccurrence {
      */
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        if (args.length != 2) {
+                if (args.length != 2) {
             System.err.println("Usage: wordcount <in> <out>");
             System.exit(2);
         }
-
-        DistributedCache.addCacheFile(new Path(DFDB_PATH).toUri(), conf);
-        Job job = new Job(conf, "word count");
+        DistributedCache.addCacheFile(new URI(DFDB_PATH), conf); // add here
+        Job job = new Job(conf, "CoOccurrence");
         job.setJarByClass(CoOccurrence.class);
         job.setMapperClass(CoOccuranceMapper.class);
-        //job.setCombinerClass(CoOccuranceReducer.class);
         job.setReducerClass(CoOccuranceReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        job.setNumReduceTasks(8);
+        job.setNumReduceTasks(2);
         TextInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? NORMAL_FLAG : ERROR_FLAG);
