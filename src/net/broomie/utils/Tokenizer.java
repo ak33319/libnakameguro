@@ -6,8 +6,6 @@ import java.util.EnumSet;
 import net.java.sen.StringTagger;
 import net.java.sen.Token;
 
-import static net.broomie.ConstantsClass.*;
-
 /**
  *
  * @author kimura
@@ -49,9 +47,10 @@ public class Tokenizer {
     /**
      * Constructor for Tokenizer.
      */
-    public Tokenizer() {
+    public Tokenizer(String senConfPath) {
         try {
-            tagger = StringTagger.getInstance(SEN_CONF_PATH);
+            //tagger = StringTagger.getInstance(SEN_CONF_PATH);
+            tagger = StringTagger.getInstance(senConfPath);
         } catch (Exception e) {
             e.printStackTrace();
         }

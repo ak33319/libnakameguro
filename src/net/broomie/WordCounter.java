@@ -16,6 +16,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import static net.broomie.ConstantsClass.LIB_NAKAMEGURO_CONF;
 import net.broomie.mapper.TokenizeMapper;
 import net.broomie.reducer.TokenizeReducer;
 
@@ -28,6 +29,7 @@ public final class WordCounter extends Configured implements Tool {
 
     public final int run(final String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         Configuration conf = getConf();
+        conf.addResource(LIB_NAKAMEGURO_CONF);
         String in = args[0];
         String out = args[1];
         runWordCount(conf, in, out);

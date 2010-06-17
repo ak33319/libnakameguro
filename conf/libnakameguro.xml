@@ -1,6 +1,10 @@
 <configuration>
   <property>
-    <name>libnakamegruo.dfdb</name>
-    <value>wiki_count.txt</value>
+    <name>libnakameguro.dfdb</name>
+    <value>word_dfdb</value>
+  </property>
+  <property>
+    <name>libnakameguro.sen</name>
+    <value>/usr/local/sen/conf/sen.xml</value>
   </property>
 </configuration>

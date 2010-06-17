@@ -1,5 +1,5 @@
 /**
- * TokenizerMapper - hoge fuga 
+ * Mapper - hoge fuga 
  */
 package net.broomie.mapper;
 
@@ -8,11 +8,13 @@ import static net.broomie.ConstantsClass.*;
 import java.io.IOException;
 import java.util.EnumSet;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import net.broomie.utils.Tokenizer;
+import static net.broomie.ConstantsClass.PROP_SEN_CONF;
 
 /**
  *
@@ -29,7 +31,16 @@ public class TokenizeMapper
     private Text word = new Text();
 
     /** Tokenizer instance. */
-    private Tokenizer tokenizer = new Tokenizer();
+    private Tokenizer tokenizer;
+    
+    private TokenizeMapper() {}
+    
+    @Override
+    public final void setup(Context context) {
+        Configuration conf = context.getConfiguration();
+        String senConf = conf.get(PROP_SEN_CONF);
+        tokenizer = new Tokenizer(senConf);
+    }
 
     /**
      * @param key map key.

@@ -3,19 +3,18 @@
  */
 package net.broomie.mapper;
 
-import static net.broomie.ConstantsClass.*;
-
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import net.broomie.utils.Tokenizer;
-import net.broomie.utils.Normalizer;
-
+import static net.broomie.ConstantsClass.PROP_SEN_CONF;
+import static net.broomie.ConstantsClass.MAX_LINE_LENGTH;
 /**
  *
  * @author kimura
@@ -31,9 +30,18 @@ public class CoCounteMapper
     private Text aroundToken = new Text();
 
     /** Tokenizer instance. */
-    private Tokenizer tokenizer = new Tokenizer();
+    private Tokenizer tokenizer;
 
     private Pattern pattern = Pattern.compile("^[0-9]+$");
+    
+    private CoCounteMapper() {}
+    
+    @Override
+    public final void setup(Context context) {
+        Configuration conf = context.getConfiguration();
+        String senConf = conf.get(PROP_SEN_CONF);
+        tokenizer = new Tokenizer(senConf);
+    }
 
     @Override
         public final void map(Object key, Text value, Context context)
