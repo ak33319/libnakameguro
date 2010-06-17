@@ -1,4 +1,4 @@
-package net.broomie.lib;
+package net.broomie.utils;
 
 import java.util.Queue;
 import java.util.PriorityQueue;
@@ -103,7 +103,7 @@ public class MyPriorityQueue {
      *
      * @return queue size.
      */
-    public final int getSize() {
+    final int getSize() {
         return queue.size();
     }
 
