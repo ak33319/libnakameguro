@@ -16,8 +16,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import net.broomie.mapper.TokenizerMapper;
-import net.broomie.reducer.TokenizerReducer;
+import net.broomie.mapper.TokenizeMapper;
+import net.broomie.reducer.TokenizeReducer;
 
 /**
  *
@@ -31,6 +31,7 @@ public final class WordCounter extends Configured implements Tool {
         String in = args[0];
         String out = args[1];
         runWordCount(conf, in, out);
+
         return 0;
     }
 
@@ -40,8 +41,8 @@ public final class WordCounter extends Configured implements Tool {
         job.setJarByClass(WordCounter.class);
         TextInputFormat.addInputPath(job, new Path(in));
         FileOutputFormat.setOutputPath(job, new Path(out));
-        job.setMapperClass(TokenizerMapper.class);
-        job.setReducerClass(TokenizerReducer.class);
+        job.setMapperClass(TokenizeMapper.class);
+        job.setReducerClass(TokenizeReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         job.setNumReduceTasks(2);

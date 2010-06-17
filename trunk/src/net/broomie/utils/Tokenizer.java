@@ -1,4 +1,4 @@
-package net.broomie.lib;
+package net.broomie.utils;
 
 import java.util.ArrayList;
 import java.util.EnumSet;

@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.Reducer;
  * @author kimura
  *
  */
-public class TokenizerReducer
+public class TokenizeReducer
     extends Reducer<Text, IntWritable, Text, IntWritable> {
 
     /** value object for store value of each key. */

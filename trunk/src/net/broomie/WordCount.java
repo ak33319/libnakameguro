@@ -18,9 +18,9 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import net.broomie.lib.Tokenizer;
-import net.broomie.mapper.TokenizerMapper;
-import net.broomie.reducer.TokenizerReducer;
+import net.broomie.utils.Tokenizer;
+import net.broomie.mapper.TokenizeMapper;
+import net.broomie.reducer.TokenizeReducer;
 
 /**
  *
@@ -45,9 +45,9 @@ public final class WordCount {
         }
         Job job = new Job(conf, "word count");
         job.setJarByClass(WordCount.class);
-        job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(TokenizerReducer.class);
-        job.setReducerClass(TokenizerReducer.class);
+        job.setMapperClass(TokenizeMapper.class);
+        job.setCombinerClass(TokenizeReducer.class);
+        job.setReducerClass(TokenizeReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         TextInputFormat.addInputPath(job, new Path(args[0]));

@@ -12,14 +12,14 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import net.broomie.lib.Tokenizer;
+import net.broomie.utils.Tokenizer;
 
 /**
  *
  * @author kimura
  *
  */
-public class TokenizerMapper
+public class TokenizeMapper
     extends Mapper<Object, Text, Text, IntWritable> {
 
     /** the object for value of Mapper. */

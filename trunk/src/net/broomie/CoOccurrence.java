@@ -25,8 +25,9 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.filecache.DistributedCache;
 
-import net.broomie.lib.Tokenizer;
-import net.broomie.lib.MyPriorityQueue;
+import net.broomie.utils.Tokenizer;
+import net.broomie.utils.MyPriorityQueue;
+
 
 import static net.broomie.ConstantsClass.*;
 
