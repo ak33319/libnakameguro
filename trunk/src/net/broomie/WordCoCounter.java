@@ -17,11 +17,12 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import net.broomie.mapper.TokenizeMapper;
-import net.broomie.reducer.TokenizeReducer;
 import net.broomie.mapper.CoCounteMapper;
 import net.broomie.reducer.CoCounteReducer;
+import net.broomie.reducer.TokenizeReducer;
 
-import static net.broomie.ConstantsClass.*;
+import static net.broomie.ConstantsClass.LIB_NAKAMEGURO_CONF;
+import static net.broomie.ConstantsClass.PROP_DFDB;
 
 /**
  *
@@ -32,10 +33,10 @@ public final class WordCoCounter extends Configured implements Tool {
 
     public final int run(final String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         Configuration conf = getConf();
-        conf.addResource("conf/libnakameguro.xml");
+        conf.addResource(LIB_NAKAMEGURO_CONF);
         String in = args[0];
         String out = args[1];
-        String dfdb = conf.get("libnakameguro.dfdb");
+        String dfdb = conf.get(PROP_DFDB);
         runWordCount(conf, in, dfdb);
         try {
             DistributedCache.addCacheFile(new URI(dfdb), conf);
@@ -74,6 +75,7 @@ public final class WordCoCounter extends Configured implements Tool {
        job.setNumReduceTasks(2);
 
        return job.waitForCompletion(true);
+
    }
 
     /**

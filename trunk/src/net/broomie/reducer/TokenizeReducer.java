@@ -1,5 +1,5 @@
 /**
- * TokenizerReducer - hoge fuga
+ * TokenizeReducer - hoge fuga
  */
 package net.broomie.reducer;
 

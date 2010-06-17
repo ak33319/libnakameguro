@@ -25,9 +25,12 @@ public final class ConstantsClass {
     /** the flag for result. */
     public static final int NORMAL_FLAG = 1;
 
-    /** the configuration path for Sen. */
-    public static final String SEN_CONF_PATH = "/usr/local/sen/conf/sen.xml";
+    /** libnakameguro configuration path*/
+    public static final String LIB_NAKAMEGURO_CONF = "conf/libnakameguro.xml";
 
-    /** dfdb path (distributed cached). */
-    public static final String DFDB_PATH = "/user/kimura/wiki_count.txt";
+    /** dfdb property name */
+    public static final String PROP_DFDB = "libnakameguro.dfdb";
+
+    /** sen conf property name */
+    public static final String PROP_SEN_CONF = "libnakameguro.sen";
 }

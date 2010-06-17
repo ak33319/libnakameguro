@@ -30,7 +30,7 @@ public class CoCounteReducer extends
     /** tf-idf map. */
     private LinkedHashMap<String, Integer> wordCount =
         new LinkedHashMap<String, Integer>(100000);
-    
+
     @Override
     public final void setup(Context context) {
         Configuration conf = context.getConfiguration();
@@ -86,7 +86,7 @@ public class CoCounteReducer extends
         }
     }
 
-    
+
     /**
      * val.
      */
