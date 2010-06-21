@@ -33,9 +33,9 @@ public class CoCounteMapper
     private Tokenizer tokenizer;
 
     private Pattern pattern = Pattern.compile("^[0-9]+$");
-    
+
     private CoCounteMapper() {}
-    
+
     @Override
     public final void setup(Context context) {
         Configuration conf = context.getConfiguration();

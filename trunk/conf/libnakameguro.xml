@@ -1,5 +1,9 @@
 <configuration>
   <property>
+    <name>libnakameguro.WordCounterReducerNum</name>
+    <value>2</value>
+  </property>
+  <property>
     <name>libnakameguro.dfdb</name>
     <value>word_dfdb</value>
   </property>
