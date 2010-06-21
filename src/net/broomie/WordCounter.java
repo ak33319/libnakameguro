@@ -16,9 +16,6 @@
 *
 */
 
-/**
- * WordCounter - Word count for Japanese document with Map-Reduce.
- */
 package net.broomie;
 
 import java.io.IOException;
@@ -40,7 +37,7 @@ import net.broomie.mapper.TokenizeMapper;
 import net.broomie.reducer.TokenizeReducer;
 
 /**
- *
+ * Word count for Japanese document with Map-Reduce.
  * @author kimura
  *
  */
@@ -54,6 +51,11 @@ public final class WordCounter extends Configured implements Tool {
 
     /** num of arugments for this program needed. */
     private final int argNum = 3;
+
+    /**
+     * The constructor for this class.
+     */
+    private WordCounter() { }
 
     /**
      * This method is used implement for thw running the word count MapReduce.
@@ -121,10 +123,6 @@ public final class WordCounter extends Configured implements Tool {
         }
     }
 
-    /**
-     * The constructor for this class.
-     */
-    private WordCounter() { }
 
     /**
      * This method is in order to run the WordCount process.

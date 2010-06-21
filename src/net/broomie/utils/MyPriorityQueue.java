@@ -1,3 +1,20 @@
+/**
+* Copyright 2010 Shunya KIMURA <brmtrain@gmail.com>
+*
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
 package net.broomie.utils;
 
 import java.util.Queue;
@@ -5,33 +22,36 @@ import java.util.PriorityQueue;
 import java.util.Comparator;
 
 /**
- *
+ * The Priority Queue class for libnakamegruo.
  * @author kimura
- *
  */
 public class MyPriorityQueue {
 
+    /** Queue object for priority queue. */
+    private Queue<Entity> queue;
+
+    /** Saving the max key size of the queue. */
+    private int maxKeyNum;
+
+    /** THe Comparator instance. */
+    private MyComparator comparator;
+
     /**
-     *
+     * The entity object for priority queue.
      * @author kimura
-     *
      */
     public class Entity {
 
-        /**
-         * aa.
-         */
+        /** The key object for priority queue entity. */
         private String key;
 
-        /**
-         *  aa.
-         */
+        /** The value object for priority queue entity. */
         private double val;
 
         /**
-         *
-         * @param key aa
-         * @param val aa
+         * The constructor for Entity class.
+         * @param key Specify the String object for the Entity key.
+         * @param val Specify the double value for the Entity val.
          */
         public Entity(String key, double val) {
             this.key = key;
@@ -39,16 +59,16 @@ public class MyPriorityQueue {
         }
 
         /**
-         *
-         * @return aaa
+         * This method is used in order to access key object of the Entity.
+         * @return The String object of the key.
          */
         public final String getKey() {
             return key;
         }
 
         /**
-         *
-         * @return aa
+         * This method is used in order to access value object of the Entity.
+         * @return The double value of the Entity.
          */
         public final double getVal() {
             return val;
@@ -56,11 +76,17 @@ public class MyPriorityQueue {
     }
 
     /**
-     *
+     * This class is Comparator for Entity class.
+     * using value of the each Entity.
      * @author kimura
-     *
      */
     public  class MyComparator implements Comparator<Entity> {
+        /**
+         * This method is used in order to compare each Entity.
+         * @param ent1 Specify the Entity object.
+         * @param ent2 Specify the Entity object.
+         * @return Return 1 if ent1 is bigger, return -1 if ent2 is bigger.
+         */
         @Override
         public final int compare(Entity ent1, Entity ent2) {
 
@@ -75,23 +101,8 @@ public class MyPriorityQueue {
     }
 
     /**
-     * aaa.
-     */
-    private Queue<Entity> queue;
-
-    /**
-     * aaa.
-     */
-    private int maxKeyNum;
-
-    /**
-     * comparator instance.
-     */
-    private MyComparator comparator;
-
-    /**
-     *
-     * @param maxNum aaa
+     * The constructor for MyPriorityQueue.
+     * @param maxNum Specify the max key size.
      */
     public MyPriorityQueue(int maxNum) {
         comparator = new MyComparator();
@@ -100,17 +111,17 @@ public class MyPriorityQueue {
     }
 
     /**
-     *
+     * This method is used in order to get queue size.
      * @return queue size.
      */
-    final int getSize() {
+    public final int getSize() {
         return queue.size();
     }
 
     /**
-     *
-     * @param key input key.
-     * @param val value of the key.
+     * This method is used in order to add Entity to the queue.
+     * @param key Specify the String object for key.
+     * @param val Specify the value of the key.
      */
     public final void add(String key, double val) {
         Entity newEnt = new Entity(key, val);
@@ -129,37 +140,14 @@ public class MyPriorityQueue {
     }
 
     /**
-     *
-     * @return Entity
+     * This method is used in order to poll Entity from queue.
+     * @return The top Entity object.
      */
     public final Entity poll() {
         if (queue.size() > 0) {
             return queue.poll();
         } else {
             return null;
-        }
-    }
-
-    /**
-     *
-     * @param args command line.
-     */
-    public static void main(String[] args) {
-        MyPriorityQueue queue = new MyPriorityQueue(5);
-
-        queue.add("d", 4);
-        queue.add("e", 5);
-        queue.add("c", 3);
-        queue.add("g", 7);
-        queue.add("f", 6);
-        queue.add("a", 1);
-        queue.add("b", 2);
-        queue.add("h", 8);
-        queue.add("i", 10);
-
-        Entity ent;
-        while ((ent = queue.poll()) != null) {
-            System.out.println(ent.getKey() + " " + ent.getVal());
         }
     }
 }

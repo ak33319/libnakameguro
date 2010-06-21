@@ -3,7 +3,6 @@
  */
 package net.broomie.utils;
 
-import static net.broomie.ConstantsClass.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +12,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
+
+import static net.broomie.ConstantsClass.READ_BUFFER_SIZE;
 
 /**
  *
@@ -34,12 +35,14 @@ public final class ReadData {
     public static void main(String[] args) throws IOException {
         String uri = args[0];
         Configuration conf = new Configuration();
+        String bufferSizeBuf = conf.get(READ_BUFFER_SIZE);
+        int readBufferSize = Integer.valueOf(bufferSizeBuf);
         FileSystem fs = FileSystem.get(URI.create(uri), conf);
         InputStream in = null;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             in = fs.open(new Path(uri));
-            IOUtils.copyBytes(in, out, READ_BUFFER_SIZE, false);
+            IOUtils.copyBytes(in, out, readBufferSize, false);
         } finally {
             IOUtils.closeStream(in);
         }
