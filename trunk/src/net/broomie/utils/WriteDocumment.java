@@ -14,7 +14,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.util.Progressable;
 
-import static net.broomie.ConstantsClass.*;
+import static net.broomie.ConstantsClass.READ_BUFFER_SIZE;
 
 /**
  *
@@ -47,12 +47,14 @@ public final class WriteDocumment {
             e.printStackTrace();
         }
         Configuration conf = new Configuration();
+        String bufferSizeBuf = conf.get(READ_BUFFER_SIZE);
+        int readBufferSize = Integer.valueOf(bufferSizeBuf);
         FileSystem fs = FileSystem.get(URI.create(dst), conf);
         OutputStream out = fs.create(new Path(dst), new Progressable() {
             public void progress() {
                 System.out.print(".");
             }
         });
-        IOUtils.copyBytes(in, out, READ_BUFFER_SIZE, true);
+        IOUtils.copyBytes(in, out, readBufferSize, true);
     }
 }
