@@ -6,6 +6,8 @@ import java.net.URISyntaxException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -37,7 +39,11 @@ public final class WordCoCounter extends Configured implements Tool {
         String in = args[0];
         String out = args[1];
         String dfdb = conf.get(PROP_DFDB);
-        runWordCount(conf, in, dfdb);
+        try {
+            runWordCount(conf, in, dfdb);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         try {
             DistributedCache.addCacheFile(new URI(dfdb), conf);
         } catch (URISyntaxException e) {
@@ -63,10 +69,13 @@ public final class WordCoCounter extends Configured implements Tool {
     }
 
 
-   private boolean runWordCount(Configuration conf, String in, String out) throws IOException, InterruptedException, ClassNotFoundException {
+   private boolean runWordCount(Configuration conf, String in, String out) throws IOException, InterruptedException, ClassNotFoundException, URISyntaxException {
        Job job = new Job(conf);
        job.setJarByClass(WordCoCounter.class);
        TextInputFormat.addInputPath(job, new Path(in));
+       FileSystem fs = FileSystem.get(new URI(out), conf);
+       FileStatus[] status = fs.listStatus(new Path(out));
+       if (status.length > 0) fs.delete(new Path(out), true);
        FileOutputFormat.setOutputPath(job, new Path(out));
        job.setMapperClass(TokenizeMapper.class);
        job.setReducerClass(TokenizeReducer.class);

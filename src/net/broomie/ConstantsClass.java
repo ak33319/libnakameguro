@@ -33,4 +33,7 @@ public final class ConstantsClass {
 
     /** sen conf property name */
     public static final String PROP_SEN_CONF = "libnakameguro.sen";
+    
+    /** Num of the Reducer for WordCounter */
+    public static final String WORD_COUNTER_REDUCER_NUM = "libnakameguro.WordCounterReducerNum";
 }
