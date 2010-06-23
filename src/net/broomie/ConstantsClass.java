@@ -46,6 +46,9 @@ public final class ConstantsClass {
     /** The name of property for dfdb path of HDFS. */
     public static final String PROP_DFDB = "libnakameguro.dfdb";
 
+    /** The name of property for lineNum path of HDFS. */
+    public static final String PROP_LINE_NUM = "libnakameguro.linenum";
+
     /** The name of property for sen.conf. */
     public static final String PROP_SEN_CONF = "libnakameguro.sen";
 

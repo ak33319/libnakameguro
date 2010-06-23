@@ -27,12 +27,15 @@ import java.util.LinkedHashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import net.broomie.utils.MyPriorityQueue;
-
+import static net.broomie.ConstantsClass.PROP_LINE_NUM;
+import static net.broomie.ConstantsClass.LIB_NAKAMEGURO_CONF;
 /**
  * The reduce class for counting co-occurrence for Japanese sentence.
  * @author kimura
@@ -47,6 +50,9 @@ public class CoCounteReducer extends Reducer<Text, Text, Text, Text> {
 
     /** The Initial queue size.*/
     private final int queueInitSiz = 100;
+
+    /** Number of the line for input file. */
+    private double lineNum = 0.0;
 
     /** The HashMap for tf-idf map. */
     private LinkedHashMap<String, Integer> wordCount =
@@ -98,7 +104,14 @@ public class CoCounteReducer extends Reducer<Text, Text, Text, Text> {
                 wordCount.put(wordCountBuf[0],
                         Integer.valueOf(wordCountBuf[1]));
             }
+
         }
+        Configuration conf = context.getConfiguration();
+        FileSystem hdfs = FileSystem.get(conf);
+        String numLinePath = conf.get(PROP_LINE_NUM);
+        FSDataInputStream dis = hdfs.open(new Path(numLinePath));
+        String lineNumBuf = dis.readUTF();
+        lineNum = (double) Integer.parseInt(lineNumBuf);
     }
 
     /**
@@ -109,7 +122,8 @@ public class CoCounteReducer extends Reducer<Text, Text, Text, Text> {
     @Override
     public final void setup(Context context) {
         Configuration conf = context.getConfiguration();
-        conf.addResource("conf/libnakameguro.xml");
+        String resourcePath = conf.get(LIB_NAKAMEGURO_CONF);
+        conf.addResource(resourcePath);
         try {
             Path[] cacheFiles = DistributedCache.getLocalCacheFiles(conf);
             if (cacheFiles != null) {
@@ -147,10 +161,12 @@ public class CoCounteReducer extends Reducer<Text, Text, Text, Text> {
         while (aroundWordsItr.hasNext()) {
             String aroundWord = aroundWordsItr.next();
             if (!aroundWord.equals(key.toString())) {
-                double score = counter.get(aroundWord);
+                double tf = counter.get(aroundWord);
                 if (wordCount.containsKey(aroundWord)) {
-                    score =
-                        score / Math.pow(wordCount.get(aroundWord) + 10.0, 0.8);
+                    //score =
+                    // score / Math.pow(wordCount.get(aroundWord) + 10.0, 0.8);
+                    int df = wordCount.get(aroundWord) + 1;
+                    double score = tf * Math.log(lineNum / df);
                     queue.add(aroundWord, score);
                 }
             }

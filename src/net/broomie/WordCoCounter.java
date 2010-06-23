@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -32,6 +33,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -44,6 +46,7 @@ import net.broomie.reducer.TokenizeReducer;
 import static net.broomie.ConstantsClass.LIB_NAKAMEGURO_CONF;
 import static net.broomie.ConstantsClass.PROP_DFDB;
 import static net.broomie.ConstantsClass.WORD_CO_COUNTER_REDUCER_NUM;
+import static net.broomie.ConstantsClass.PROP_LINE_NUM;
 /**
  * This class is Word co-occurence count for Japanese document with Map-Reduce.
  * @author kimura
@@ -90,13 +93,27 @@ public final class WordCoCounter extends Configured implements Tool {
         if (status != null) {
             fs.delete(new Path(dfdb), true);
         }
+        fs.close();
         FileOutputFormat.setOutputPath(job, new Path(dfdb));
         job.setMapperClass(TokenizeMapper.class);
         job.setReducerClass(TokenizeReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         job.setNumReduceTasks(Integer.valueOf(reducerNum));
-        return job.waitForCompletion(true);
+        boolean rv = job.waitForCompletion(true);
+        if (rv) {
+            Counters counters = job.getCounters();
+            long inputNum = counters.findCounter(
+                    "org.apache.hadoop.mapred.Task$Counter",
+                    "MAP_INPUT_RECORDS").getValue();
+                FileSystem hdfs = FileSystem.get(conf);
+                String numLinePath = conf.get(PROP_LINE_NUM);
+                FSDataOutputStream stream =
+                    hdfs.create(new Path(numLinePath));
+                stream.writeUTF(String.valueOf((int) inputNum));
+                stream.close();
+        }
+        return rv;
     }
 
     /**
