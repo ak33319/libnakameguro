@@ -17,24 +17,15 @@
 */
 package net.broomie.reducer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.filecache.DistributedCache;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import net.broomie.utils.MyPriorityQueue;
-import static net.broomie.ConstantsClass.PROP_LINE_NUM;
 import static net.broomie.ConstantsClass.LIB_NAKAMEGURO_CONF;
 /**
  * The reduce class for counting co-occurrence for Japanese sentence.
@@ -51,69 +42,6 @@ public class CoCounteReducer extends Reducer<Text, Text, Text, Text> {
     /** The Initial queue size.*/
     private final int queueInitSiz = 100;
 
-    /** Number of the line for input file. */
-    private double lineNum = 0.0;
-
-    /** The HashMap for tf-idf map. */
-    private LinkedHashMap<String, Integer> wordCount =
-        new LinkedHashMap<String, Integer>(hashMapInitSiz);
-
-    /**
-     * This method is in order to select part-file with regular expression.
-     * @param regex Specify the regular expression.
-     * @return FilenameFilter object.
-     */
-    private FilenameFilter getFileRegexFilter(String regex) {
-        final String regex_ = regex;
-        return new FilenameFilter() {
-            public boolean accept(File file, String name) {
-                boolean ret = name.matches(regex_);
-                return ret;
-           }
-        };
-    }
-
-    /**
-     * This method is used in order to DistributedCache files.
-     * @param cachePath Specify the cache file path.
-     * @param context Specify the hadoop Context object.
-     * @throws IOException Exception for the DistributedCache file open.
-     */
-    private void loadCacheFile(Path cachePath, Context context)
-        throws IOException {
-        File cacheFile = new File(cachePath.toString());
-        if (cacheFile.isDirectory()) {
-            File[] caches =
-                cacheFile.listFiles(getFileRegexFilter("part-.*-[0-9]*"));
-            for (File cache : caches) {
-                BufferedReader wordReader =
-                    new BufferedReader(new FileReader(cache.getAbsolutePath()));
-                String line;
-                while ((line = wordReader.readLine()) != null) {
-                    String[] wordCountBuf = line.split("\t");
-                    wordCount.put(wordCountBuf[0],
-                            Integer.valueOf(wordCountBuf[1]));
-                }
-            }
-        } else {
-            BufferedReader wordReader =
-                new BufferedReader(new FileReader(cachePath.toString()));
-            String line;
-            while ((line = wordReader.readLine()) != null) {
-                String[] wordCountBuf = line.split("\t");
-                wordCount.put(wordCountBuf[0],
-                        Integer.valueOf(wordCountBuf[1]));
-            }
-
-        }
-        Configuration conf = context.getConfiguration();
-        FileSystem hdfs = FileSystem.get(conf);
-        String numLinePath = conf.get(PROP_LINE_NUM);
-        FSDataInputStream dis = hdfs.open(new Path(numLinePath));
-        String lineNumBuf = dis.readUTF();
-        lineNum = (double) Integer.parseInt(lineNumBuf);
-    }
-
     /**
      * The setup method for TokenizeReducer.
      * This method will run before reduce phase.
@@ -124,16 +52,6 @@ public class CoCounteReducer extends Reducer<Text, Text, Text, Text> {
         Configuration conf = context.getConfiguration();
         String resourcePath = conf.get(LIB_NAKAMEGURO_CONF);
         conf.addResource(resourcePath);
-        try {
-            Path[] cacheFiles = DistributedCache.getLocalCacheFiles(conf);
-            if (cacheFiles != null) {
-                for (Path cachePath : cacheFiles) {
-                    loadCacheFile(cachePath, context);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -146,14 +64,14 @@ public class CoCounteReducer extends Reducer<Text, Text, Text, Text> {
     public final void reduce(Text key, Iterable<Text> values, Context context)
         throws IOException, InterruptedException {
 
-        LinkedHashMap<String, Double> counter =
-            new LinkedHashMap<String, Double>(hashMapInitSiz);
+        LinkedHashMap<String, Integer> counter =
+            new LinkedHashMap<String, Integer>(hashMapInitSiz);
         for (Text wordBuf : values) {
             String word = wordBuf.toString();
             if (!counter.containsKey(word)) {
-                counter.put(word, 1.0);
+                counter.put(word, 1);
             } else {
-                counter.put(word, counter.get(word).intValue() + 1.0);
+                counter.put(word, counter.get(word).intValue() + 1);
             }
         }
         MyPriorityQueue queue = new MyPriorityQueue(queueInitSiz);
@@ -161,14 +79,8 @@ public class CoCounteReducer extends Reducer<Text, Text, Text, Text> {
         while (aroundWordsItr.hasNext()) {
             String aroundWord = aroundWordsItr.next();
             if (!aroundWord.equals(key.toString())) {
-                double tf = counter.get(aroundWord);
-                if (wordCount.containsKey(aroundWord)) {
-                    //score =
-                    // score / Math.pow(wordCount.get(aroundWord) + 10.0, 0.8);
-                    int df = wordCount.get(aroundWord) + 1;
-                    double score = tf * Math.log(lineNum / df);
-                    queue.add(aroundWord, score);
-                }
+                int tf = counter.get(aroundWord);
+                queue.add(aroundWord, tf);
             }
         }
         StringBuilder resultVal = new StringBuilder();
@@ -177,7 +89,7 @@ public class CoCounteReducer extends Reducer<Text, Text, Text, Text> {
             if (resultVal.length() > 0) {
                 resultVal.insert(0, "\t");
             }
-            String resultScore = String.format("%.2f", ent.getVal());
+            String resultScore = String.format("%d", (int) ent.getVal());
             resultVal.insert(0, ent.getKey() + ":" + resultScore);
         }
         val.set(resultVal.toString());

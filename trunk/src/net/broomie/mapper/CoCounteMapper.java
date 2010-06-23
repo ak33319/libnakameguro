@@ -37,7 +37,8 @@ import static net.broomie.ConstantsClass.NUM_OF_AROUND_WORD;
  * @author kimura
  *
  */
-public final class CoCounteMapper extends Mapper<Object, Text, Text, Text> {
+public final class CoCounteMapper
+            extends Mapper<Object, Text, Text, Text> {
 
     /** the Text object for key of Mapper. */
     private Text targetToken = new Text();
@@ -91,7 +92,6 @@ public final class CoCounteMapper extends Mapper<Object, Text, Text, Text> {
         int resultLength = result.length;
         for (int i = 0; i < resultLength; i++) {
             Matcher matcher = pattern.matcher(result[i]);
-            //if ((matcher.matches()) == false) {
             if (!matcher.matches()) {
                 targetToken.set(result[i]);
                 for (int j = 1; j <= numOfAroundWords; j++) {
