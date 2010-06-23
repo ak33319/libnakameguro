@@ -40,6 +40,7 @@ import org.apache.hadoop.util.ToolRunner;
 
 import net.broomie.mapper.TokenizeMapper;
 import net.broomie.mapper.CoCounteMapper;
+import net.broomie.reducer.CoCounteReducerTFIDF;
 import net.broomie.reducer.CoCounteReducer;
 import net.broomie.reducer.TokenizeReducer;
 
@@ -50,14 +51,11 @@ import static net.broomie.ConstantsClass.PROP_LINE_NUM;
 /**
  * This class is Word co-occurence count for Japanese document with Map-Reduce.
  * @author kimura
- *
  */
 public final class WordCoCounter extends Configured implements Tool {
 
 
-    /**
-     * The Constructor for WordCoCounter class.
-     */
+    /** The Constructor for WordCoCounter class. */
     private WordCoCounter() { }
 
     /** The String buffer for input file path. */
@@ -65,6 +63,9 @@ public final class WordCoCounter extends Configured implements Tool {
 
     /** The String buffer for output directory path on HDFS. */
     private String out;
+
+    /** The String buffer for using tf-idf scoring flag. */
+    private boolean tfidfFlag = false;
 
     /** Number of arugments for this program needed. */
     private final int argNum = 3;
@@ -89,7 +90,6 @@ public final class WordCoCounter extends Configured implements Tool {
         TextInputFormat.addInputPath(job, new Path(in));
         FileSystem fs = FileSystem.get(new URI(dfdb), conf);
         FileStatus[] status = fs.listStatus(new Path(dfdb));
-        System.out.println(status);
         if (status != null) {
             fs.delete(new Path(dfdb), true);
         }
@@ -106,12 +106,12 @@ public final class WordCoCounter extends Configured implements Tool {
             long inputNum = counters.findCounter(
                     "org.apache.hadoop.mapred.Task$Counter",
                     "MAP_INPUT_RECORDS").getValue();
-                FileSystem hdfs = FileSystem.get(conf);
-                String numLinePath = conf.get(PROP_LINE_NUM);
-                FSDataOutputStream stream =
-                    hdfs.create(new Path(numLinePath));
-                stream.writeUTF(String.valueOf((int) inputNum));
-                stream.close();
+            FileSystem hdfs = FileSystem.get(conf);
+            String numLinePath = conf.get(PROP_LINE_NUM);
+            FSDataOutputStream stream =
+                hdfs.create(new Path(numLinePath));
+            stream.writeUTF(String.valueOf((int) inputNum));
+            stream.close();
         }
         return rv;
     }
@@ -131,27 +131,31 @@ public final class WordCoCounter extends Configured implements Tool {
         job.setJarByClass(WordCoCounter.class);
         TextInputFormat.addInputPath(job, new Path(in));
         FileOutputFormat.setOutputPath(job, new Path(out));
-        job.setMapperClass(CoCounteMapper.class);
-        job.setReducerClass(CoCounteReducer.class);
+        if (tfidfFlag) {
+            job.setMapperClass(CoCounteMapper.class);
+            job.setReducerClass(CoCounteReducerTFIDF.class);
+        } else {
+            job.setMapperClass(CoCounteMapper.class);
+            job.setReducerClass(CoCounteReducer.class);
+        }
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
         job.setNumReduceTasks(Integer.valueOf(reducerNum));
         return job.waitForCompletion(true);
     }
 
-   /**
-    * This method is used in order to print the usage of this program.
-    */
+   /** This method is used in order to print the usage of this program. */
    private void printUsage() {
        System.err.println("");
-       System.err.println("WordCounter : A map/reduce program"
-               + " for countting the occurrance of Japanes words.");
+       System.err.println("WordCoCounter : A map/reduce program"
+               + " for countting the co occurrance of Japanes words.");
        System.err.println();
        System.err.println("\t[usage] hadoop jar"
-               + " libnakamegruo.jar -i input -o output");
+               + " libnakamegruo.jar -i input -o output [-t]");
        System.err.println("\t\t-i, --input=file\tspecify the input file");
        System.err.println("\t\t-o, --output=dir\tspecify"
                + " the output directory name of HDFS");
+       System.err.println("\t(optional) -w\tweighting each words with tfidf");
        System.err.println();
        System.exit(-1);
    }
@@ -176,6 +180,8 @@ public final class WordCoCounter extends Configured implements Tool {
            } else if (elem.matches("^--output=.*")) {
                int idx = elem.indexOf("=");
                out = elem.substring(idx + 1, elem.length());
+           } else if (elem.equals("-w")) {
+               tfidfFlag = true;
            } else {
                printUsage();
            }
@@ -196,18 +202,19 @@ public final class WordCoCounter extends Configured implements Tool {
         conf.addResource(LIB_NAKAMEGURO_CONF);
         procArgs(args);
         String dfdb = conf.get(PROP_DFDB);
-        try {
-            runWordCount(conf, dfdb);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        try {
-            DistributedCache.addCacheFile(new URI(dfdb), conf);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+        if (tfidfFlag) {
+            try {
+                runWordCount(conf, dfdb);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+            try {
+                DistributedCache.addCacheFile(new URI(dfdb), conf);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
         }
         runWordCoCount(conf);
-
         return 0;
     }
 

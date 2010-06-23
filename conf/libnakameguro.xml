@@ -12,6 +12,10 @@
     <value>word_dfdb</value>
   </property>
   <property>
+    <name>libnakameguro.lineNum</name>
+    <value>word_dfdb/lineNum</value>
+  </property>
+  <property>
     <name>libnakameguro.sen</name>
     <value>/usr/local/sen/conf/sen.xml</value>
   </property>
