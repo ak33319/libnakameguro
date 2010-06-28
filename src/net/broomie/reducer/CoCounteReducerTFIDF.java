@@ -64,10 +64,10 @@ public class CoCounteReducerTFIDF extends Reducer<Text, Text, Text, Text> {
      * @return FilenameFilter object.
      */
     private FilenameFilter getFileRegexFilter(String regex) {
-        final String regex_ = regex;
+        final String regexBuf = regex;
         return new FilenameFilter() {
             public boolean accept(File file, String name) {
-                boolean ret = name.matches(regex_);
+                boolean ret = name.matches(regexBuf);
                 return ret;
            }
         };

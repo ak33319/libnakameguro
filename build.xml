@@ -1,17 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+
+
 <project default="jar" name="libnakameguro">
+
   <property name="lib.dir" value="${basedir}/lib" />
+  <path id="common-classpath">
+    <fileset dir="${lib.dir}">
+      <include name="*.jar" />
+    </fileset>
+    <fileset dir="${basedir}">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+  <property name="version" value="0.1" />
+  <property name="lib.dir" value="${basedir}/lib" />
+  <property name="src.dir" location="${basedir}/src/net/" />
+  <property name="test.src.dir" location="${basedir}/src/test/" />
+  <property name="libnakameguro-test.jar" value="libnakameguro-${version}-test.jar" />
+  <property name="test.build.dir" location="${basedir}/buildtest" />
+  <property name="test.build.resource.dir" location="${test.build.dir}/resources" />
+  <property name="test.resource.dir" location="${test.src.dir}/resources" />
+  <property name="reports.dir" location="${basedir}/reports" />
+
   <target name="init">
     <mkdir dir="build" />
   </target>
+
+
   <target name="compile" depends="init">
-    <javac srcdir="src" destdir="build" classpath="./lib/hadoop-0.20.1-core.jar" includes="**/*.java" />
+    <javac srcdir="src/net" destdir="build" classpathref="common-classpath" />
   </target>
+
+
   <target name="jar" depends="compile">
     <jar destfile="libnakameguro.jar" basedir="build" />
   </target>
+
+
   <target name="clean">
     <delete file="libnakameguro.jar" />
     <delete dir="./build" />
+    <delete dir="./buildtest" />
   </target>
+
+
+  <target name="test-compile">
+    <mkdir dir="buildtest" />
+    <javac srcdir="src/test/" destdir="${test.build.dir}" classpathref="common-classpath" />
+  </target>
+
+
+  <target name="test-compress" depends="test-compile">
+    <jar jarfile="${libnakameguro-test.jar}" basedir="${test.build.dir}" />
+  </target>
+
+  <target name="test-run" depends="test-compress" description="run test">
+    <!-- <copy todir="${test.build.resource.dir}">
+      <fileset dir="${test.resource.dir}" />
+    </copy>
+    -->
+    <junit printsummary="true" errorProperty="test.failed"
+           failureProperty="test.failed" fork="${junit.fork}"  maxmemory="512m"
+           dir="${basedir}" showoutput="true" haltonfailure="no">
+      <classpath refid="common-classpath" />
+      <formatter type="xml" />
+      <batchtest fork="yes" todir="${reports.dir}">
+        <fileset dir="${test.build.dir}" includes="**/*Test.class" />
+      </batchtest>
+    </junit>
+    <fail message="Tests failed!" if="test.failed" />
+    <junitreport todir="${reports.dir}">
+      <fileset dir="${reports.dir}">
+        <include name="TEST-*.xml" />
+      </fileset>
+      <report format="frames" todir="${reports.dir}" />
+    </junitreport>
+  </target>
+
+
+
+
+
+
 </project>

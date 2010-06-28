@@ -130,12 +130,16 @@ public class MyPriorityQueue {
             queue.add(newEnt);
             return;
         }
-        int result = comparator.compare(newEnt, peekEnt);
-        if (result > 0) {
-            if (queue.size() >= maxKeyNum) {
-                queue.poll();
-            }
+        if (queue.size() < maxKeyNum) {
             queue.add(newEnt);
+        } else {
+            int result = comparator.compare(newEnt, peekEnt);
+            if (result > 0) {
+                if (queue.size() >= maxKeyNum) {
+                    queue.poll();
+                }
+                queue.add(newEnt);
+            }
         }
     }
 

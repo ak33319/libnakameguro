@@ -46,9 +46,6 @@ public final class TokenizeMapper
     /** Tokenizer instance. */
     private Tokenizer tokenizer;
 
-    /** The constructor for TokenizeMapper class. */
-    private TokenizeMapper() { }
-
     /**
      * The setup method for TokenizeMapper.
      *  This method will run before map phase.
