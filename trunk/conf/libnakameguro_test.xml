@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <entry key="libnakameguro.test.Normalizer">resources/Normalizer</entry>
+  <entry key="libnakameguro.test.Tokenizer">resources/Tokenizer</entry>
+  <entry key="libnakameguro.test.Sen">/usr/local/sen/conf/sen.xml</entry>
+</properties>
