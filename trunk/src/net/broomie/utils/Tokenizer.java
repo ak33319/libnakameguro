@@ -68,7 +68,8 @@ public class Tokenizer {
      */
     public Tokenizer(String senConfPath) {
         try {
-            tagger = StringTagger.getInstance(senConfPath);
+            //tagger = StringTagger.getInstance(senConfPath);
+            tagger = StringTagger.getInstance("/usr/local/sen/conf/sen.xml");
         } catch (Exception e) {
             e.printStackTrace();
         }
