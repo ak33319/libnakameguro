@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="/home/kimura/Work/JavaProjects/LIBNAKAMEGURO/lib/easymock-3.0.jar"/>
 	<classpathentry kind="lib" path="/home/kimura/Work/JavaProjects/LIBNAKAMEGURO/lib/easymockclassextension-2.5.2.jar"/>
 	<classpathentry kind="lib" path="/home/kimura/Work/JavaProjects/LIBNAKAMEGURO/lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="/home/kimura/Work/JavaProjects/LIBNAKAMEGURO/lib/hadoop-0.20.2+228-mrunit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
