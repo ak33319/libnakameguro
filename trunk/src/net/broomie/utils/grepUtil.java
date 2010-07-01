@@ -26,7 +26,7 @@ public final class grepUtil {
 
             @Override
             public final void map(Object key, Text value, Context context) {
-                
+
                 Configuration conf = context.getConfiguration();
                 String target = conf.get("targetString");
                 System.err.println("[CHECK]" + target);
