@@ -33,7 +33,7 @@ public final class EmptyMapReduce {
         private static final IntWritable ONE = new IntWritable(1);
 
         /** word.*/
-        private Text word = new Text();
+        private Text word = new Text("a");
 
         @Override
         public final void map(Object key, Text value, Context context) {
@@ -62,9 +62,9 @@ public final class EmptyMapReduce {
          */
         public final void reduce(Text key, Iterable<IntWritable> values,
                 Context context) {
-            for (IntWritable val : values) {
-                System.err.println(val);
-            }
+            //for (IntWritable val : values) {
+//                System.err.println(val);
+            //}
             //context.write(key, value);
         }
     }
