@@ -37,6 +37,7 @@ public final class EmptyMapReduce {
 
         @Override
         public final void map(Object key, Text value, Context context) {
+            /**
             try {
                 //context.write(word, ONE);
             } catch (IOException e) {
@@ -46,6 +47,7 @@ public final class EmptyMapReduce {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            */
         }
     }
 
