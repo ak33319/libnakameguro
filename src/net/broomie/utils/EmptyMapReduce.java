@@ -1,7 +1,5 @@
 package net.broomie.utils;
 
-import java.io.IOException;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -81,13 +79,14 @@ public final class EmptyMapReduce {
             System.err.println("Usage: EmptyMapReduce <in> <out>");
             System.exit(-1);
         }
+        Path inputFile = new Path(args[0]);
         Job job = new Job(conf, "EmptyMapReduce");
         job.setJarByClass(EmptyMapReduce.class);
         job.setMapperClass(EmptyMapper.class);
         job.setReducerClass(EmptyReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        TextInputFormat.addInputPath(job, new Path(args[0]));
+        TextInputFormat.addInputPath(job, inputFile);
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? 1 : 1);
 
