@@ -25,7 +25,7 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import net.broomie.utils.Tokenizer;
+import net.broomie.utils.GoSenTokenizer;
 import static net.broomie.ConstantsClass.PROP_SEN_CONF;
 import static net.broomie.ConstantsClass.MAX_LINE_LENGTH;
 
@@ -44,7 +44,7 @@ public final class TokenizeMapper
     private Text word = new Text();
 
     /** Tokenizer instance. */
-    private Tokenizer tokenizer;
+    private GoSenTokenizer tokenizer;
 
     /**
      * The setup method for TokenizeMapper.
@@ -55,7 +55,7 @@ public final class TokenizeMapper
     public void setup(Context context) {
         Configuration conf = context.getConfiguration();
         String senConf = conf.get(PROP_SEN_CONF);
-        tokenizer = new Tokenizer(senConf);
+        tokenizer = new GoSenTokenizer(senConf);
     }
 
     /**
@@ -78,8 +78,8 @@ public final class TokenizeMapper
             buf = buf.substring(0, maxLineLength);
         }
         String[] result =
-            tokenizer.getToken(buf, EnumSet.of(Tokenizer.ExtractType.Noun,
-                    Tokenizer.ExtractType.Unk));
+            tokenizer.getToken(buf, EnumSet.of(GoSenTokenizer.ExtractType.Noun,
+                    GoSenTokenizer.ExtractType.Unk));
         for (String token : result) {
             word.set(token);
             context.write(word, ONE);

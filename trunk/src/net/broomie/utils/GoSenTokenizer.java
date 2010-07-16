@@ -20,16 +20,19 @@ package net.broomie.utils;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
+/** import libraries for GoSen. */
 import net.java.sen.StringTagger;
-import net.java.sen.Token;
+import net.java.sen.SenFactory;
+import net.java.sen.dictionary.Token;
 
 /**
  *
  * @author kimura
  *
  */
-public class Tokenizer {
+public class GoSenTokenizer {
 
     /** Noun string definition. */
     private final String nounDef = "名詞";
@@ -59,17 +62,16 @@ public class Tokenizer {
         Unk,
     }
 
-    /** tagger object for extract token from Japanese document. */
+    /** The Tagger object for extract token from Japanese document. */
     private StringTagger tagger;
 
     /**
      * The constructor for Tokenizer class.
-     * @param senConfPath Specify the path for sen configuration.
+     * @param senConfPath Specify the path for GoSen configuration.
      */
-    public Tokenizer(String senConfPath) {
+    public GoSenTokenizer(String senConfPath) {
         try {
-            //tagger = StringTagger.getInstance(senConfPath);
-            tagger = StringTagger.getInstance("/usr/local/sen/conf/sen.xml");
+            tagger = SenFactory.getStringTagger(senConfPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,27 +85,26 @@ public class Tokenizer {
      */
     public final String[] getToken(String str, EnumSet<ExtractType> type) {
         ArrayList<String> result = new ArrayList<String>();
-
         try {
-            Token[] token = tagger.analyze(str);
-            if (token != null) {
-                for (int i = 0; i < token.length; i++) {
-                    String pos = token[i].getPos().substring(0, 2);
+            List<Token> tokens = tagger.analyze(str);
+            if (tokens != null) {
+                for (Token token : tokens) {
+                    String pos = token.getMorpheme().toString().substring(0, 2);
                     if (pos.equals(nounDef)) {
                         if (type.contains(ExtractType.Noun)) {
-                            result.add(token[i].getBasicString());
-                        }
+                            result.add(token.getSurface());
+                            }
                     } else if (pos.equals(verbDef)) {
                         if (type.contains(ExtractType.Verb)) {
-                            result.add(token[i].getBasicString());
-                        }
+                            result.add(token.getSurface());
+                            }
                     } else if (pos.equals(adjDef)) {
                         if (type.contains(ExtractType.Adj)) {
-                            result.add(token[i].getBasicString());
-                        }
+                            result.add(token.getSurface());
+                            }
                     } else if (pos.equals(unkDef)) {
                         if (type.contains(ExtractType.Unk)) {
-                            result.add(token[i].getBasicString());
+                            result.add(token.getSurface());
                         }
                     }
                 }

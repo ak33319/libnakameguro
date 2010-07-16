@@ -3,5 +3,5 @@
 <properties>
   <entry key="libnakameguro.test.Normalizer">resources/Normalizer</entry>
   <entry key="libnakameguro.test.Tokenizer">resources/Tokenizer</entry>
-  <entry key="libnakameguro.test.Sen">/usr/local/sen/conf/sen.xml</entry>
+  <entry key="libnakameguro.test.GoSen">/usr/local/GoSen/testdata/dictionary/dictionary.xml</entry>
 </properties>
