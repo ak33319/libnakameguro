@@ -17,15 +17,35 @@
 */
 package test.net.broomie.mapper;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Properties;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 
 import junit.framework.TestCase;
 
 import net.broomie.mapper.TokenizeMapper;
+import net.broomie.reducer.TokenizeReducer;
 
 import static org.easymock.classextension.EasyMock.*;
+
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+
+import org.junit.Before;
+
+import org.junit.Test;
+import org.junit.runner.JUnitCore;
+
+import org.apache.hadoop.mrunit.mapreduce.MapDriver;
+import org.apache.hadoop.mrunit.mapreduce.MapReduceDriver;
+
+import static net.broomie.ConstantsClass.LIB_NAKAMEGURO_CONF;
+
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -35,13 +55,55 @@ import static org.easymock.classextension.EasyMock.*;
  */
 public class TokenizeMapperTest extends TestCase {
 
+
     /**
-     * A constructor for TokenizeMapperTest class.
      * @param name Specify the class name.
      */
     public TokenizeMapperTest(String name) {
         super(name);
     }
+
+    /** A tokenizer conf path. */
+    private String tokenizerConf;
+
+    /**
+     * The set up method for Junit.
+     * @throws Exception the Exception.
+     */
+    protected final void setUp() throws Exception {
+        super.setUp();
+        Properties prop = new Properties();
+        prop.loadFromXML(new FileInputStream("conf/libnakameguro.xml"));
+        tokenizerConf = prop.getProperty("libnakameguro.test.GoSen");
+
+    }
+
+    public void testTokenizerMapper() {
+        TokenizeMapper mapper = new TokenizeMapper();
+
+        Configuration conf = new Configuration();
+        conf.set("libnakameguro.GoSen", tokenizerConf);
+        //Context context = new Context(conf);
+        //Context context = mock(Mapper.Context.class);
+        //Context context = new Context(conf, null, null, null, null, null, null);
+        Context context = mapper.super(conf, null, null, null, null, null, null);
+        mapper.map(null, new Text("aiueo"), context);
+        
+
+
+    }
+
+    /*
+    @Test
+    public void testTokenizeMapper() throws IOException, InterruptedException {
+        TokenizeMapper mapper = new TokenizeMapper();
+        Text value = new Text("aiueo");
+        Context mock_context = mock(Context.class);
+        Configuration conf = new Configuration();
+        conf.addResource(LIB_NAKAMEGURO_CONF);
+        mapper.map(null, new Text("hoge"), mock_context);
+    }
+    */
 
     /**
      * A test case for TokenizeMapper class.
@@ -49,6 +111,11 @@ public class TokenizeMapperTest extends TestCase {
      * @throws IOException throw.
      */
     public final void testMap() throws IOException, InterruptedException {
+        //TokenizeMapper mapper = new TokenizeMapper();
+        //Configuration conf = new Configuration();
+        //conf.addResource(LIB_NAKAMEGURO_CONF);
+
+
         //TokenizeMapper mapper = new TokenizeMapper();
         //TokenizeMapper.Context mock = createMock(TokenizeMapper.Context.class);
         //Text value = new Text("abc def");

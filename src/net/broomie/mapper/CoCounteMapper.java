@@ -27,7 +27,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import net.broomie.utils.Tokenizer;
+import net.broomie.utils.GoSenTokenizer;
 import static net.broomie.ConstantsClass.PROP_SEN_CONF;
 import static net.broomie.ConstantsClass.MAX_LINE_LENGTH;
 import static net.broomie.ConstantsClass.NUM_OF_AROUND_WORD;
@@ -47,7 +47,7 @@ public final class CoCounteMapper
     private Text aroundToken = new Text();
 
     /** Tokenizer instance. */
-    private Tokenizer tokenizer;
+    private GoSenTokenizer tokenizer;
 
     /** The regex patter for searching the part-00 files.*/
     private Pattern pattern = Pattern.compile("^[0-9]+$");
@@ -64,7 +64,7 @@ public final class CoCounteMapper
     public void setup(Context context) {
         Configuration conf = context.getConfiguration();
         String senConf = conf.get(PROP_SEN_CONF);
-        tokenizer = new Tokenizer(senConf);
+        tokenizer = new GoSenTokenizer(senConf);
     }
 
     /**
@@ -88,7 +88,7 @@ public final class CoCounteMapper
         }
         buf = net.broomie.utils.Normalizer.normalize(buf);
         String[] result = tokenizer.getToken(buf, EnumSet
-                  .of(Tokenizer.ExtractType.Noun, Tokenizer.ExtractType.Unk));
+                  .of(GoSenTokenizer.ExtractType.Noun, GoSenTokenizer.ExtractType.Unk));
         int resultLength = result.length;
         for (int i = 0; i < resultLength; i++) {
             Matcher matcher = pattern.matcher(result[i]);

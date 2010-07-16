@@ -16,8 +16,8 @@
     <value>word_dfdb/lineNum</value>
   </property>
   <property>
-    <name>libnakameguro.sen</name>
-    <value>/usr/local/sen/conf/sen.xml</value>
+    <name>libnakameguro.GoSen</name>
+    <value>/usr/local/GoSen/testdata/dictionary/dictionary.xml</value>
   </property>
   <property>
     <name>libnakameguro.readbuffersize</name>

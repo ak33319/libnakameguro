@@ -28,7 +28,7 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import net.broomie.utils.Tokenizer;
+import net.broomie.utils.GoSenTokenizer;
 
 /**
  * A test case for Tokenizer class.
@@ -37,7 +37,7 @@ import net.broomie.utils.Tokenizer;
 public class TokenizerTest extends TestCase {
 
     /** A Tokenizer instance. */
-    private Tokenizer tokenizer;
+    private GoSenTokenizer tokenizer;
 
     /** A buffer for storing corpus. */
     private ArrayList<String> corpus;
@@ -62,8 +62,8 @@ public class TokenizerTest extends TestCase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String confPath = prop.getProperty("libnakameguro.test.Sen");
-        tokenizer = new Tokenizer(confPath);
+        String confPath = prop.getProperty("libnakameguro.test.GoSen");
+        tokenizer = new GoSenTokenizer(confPath);
     }
 
     /**
@@ -82,7 +82,7 @@ public class TokenizerTest extends TestCase {
             System.err.println("[Tokenizer] input:" + line);
             String[] rv =
                 tokenizer.getToken(line,
-                        EnumSet.of(Tokenizer.ExtractType.Noun));
+                        EnumSet.of(GoSenTokenizer.ExtractType.Noun));
             assertTrue(rv.length > 2);
         }
     }

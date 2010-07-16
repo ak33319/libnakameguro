@@ -50,7 +50,7 @@ public final class ConstantsClass {
     public static final String PROP_LINE_NUM = "libnakameguro.lineNum";
 
     /** The name of property for sen.conf. */
-    public static final String PROP_SEN_CONF = "libnakameguro.sen";
+    public static final String PROP_SEN_CONF = "libnakameguro.GoSen";
 
     /** Number of the Reducer for WordCounter. */
     public static final String WORD_COUNTER_REDUCER_NUM =
