@@ -1,11 +1,11 @@
 <configuration>
   <property>
     <name>libnakameguro.WordCounterReducerNum</name>
-    <value>2</value>
+    <value>8</value>
   </property>
   <property>
     <name>libnakameguro.WordCoCounterReducerNum</name>
-    <value>2</value>
+    <value>8</value>
   </property>
   <property>
     <name>libnakameguro.dfdb</name>

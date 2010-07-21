@@ -73,13 +73,12 @@ public final class TokenizeMapper
         String maxLineLengthBuf = conf.get(MAX_LINE_LENGTH);
         int maxLineLength = Integer.valueOf(maxLineLengthBuf);
         String buf = value.toString();
-        System.err.println(buf.length());
-        if (buf.length() > maxLineLength) {
-            buf = buf.substring(0, maxLineLength);
-        }
+        //System.err.println(buf.length());
+        //if (buf.length() > maxLineLength) {
+	//buf = buf.substring(0, maxLineLength);
+	//}
         String[] result =
-            tokenizer.getToken(buf, EnumSet.of(GoSenTokenizer.ExtractType.Noun,
-                    GoSenTokenizer.ExtractType.Unk));
+            tokenizer.getToken(buf, EnumSet.of(GoSenTokenizer.ExtractType.Noun));
         for (String token : result) {
             word.set(token);
             context.write(word, ONE);
