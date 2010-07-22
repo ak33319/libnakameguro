@@ -28,6 +28,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -39,15 +40,14 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 //import net.broomie.mapper.TokenizeMapper;
-import net.broomie.mapper.CoCounteMapper;
 import net.broomie.mapper.DFMapper;
-import net.broomie.reducer.CoCounteReducerTFIDF;
-import net.broomie.reducer.CoCounteReducer;
+import net.broomie.mapper.TokenizeMapper;
 import net.broomie.reducer.TokenizeReducer;
+import net.broomie.reducer.TokenizeReducerTFIDF;
 
 import static net.broomie.ConstantsClass.LIB_NAKAMEGURO_CONF;
 import static net.broomie.ConstantsClass.PROP_DFDB;
-import static net.broomie.ConstantsClass.WORD_CO_COUNTER_REDUCER_NUM;
+import static net.broomie.ConstantsClass.WORD_COUNTER_REDUCER_NUM;
 import static net.broomie.ConstantsClass.PROP_LINE_NUM;
 /**
  * This class is Word co-occurence count for Japanese document with Map-Reduce.
@@ -88,7 +88,7 @@ public final class JpWordCounter extends Configured implements Tool {
     private boolean runCreateDFDB(Configuration conf, String dfdb)
         throws IOException, InterruptedException,
         ClassNotFoundException, URISyntaxException {
-        String reducerNum = conf.get(WORD_CO_COUNTER_REDUCER_NUM);
+        String reducerNum = conf.get(WORD_COUNTER_REDUCER_NUM);
         Job job = new Job(conf);
         job.setJarByClass(JpWordCounter.class);
         TextInputFormat.addInputPath(job, new Path(in));
@@ -105,6 +105,7 @@ public final class JpWordCounter extends Configured implements Tool {
         job.setOutputValueClass(IntWritable.class);
         job.setNumReduceTasks(Integer.valueOf(reducerNum));
         boolean rv = job.waitForCompletion(true);
+
         if (rv) {
             Counters counters = job.getCounters();
             long inputNum = counters.findCounter(
@@ -117,6 +118,7 @@ public final class JpWordCounter extends Configured implements Tool {
             stream.writeUTF(String.valueOf((int) inputNum));
             stream.close();
         }
+
         return rv;
     }
 
@@ -130,20 +132,22 @@ public final class JpWordCounter extends Configured implements Tool {
      */
     private boolean runWordCoCount(Configuration conf)
         throws IOException, InterruptedException, ClassNotFoundException {
-        String reducerNum = conf.get(WORD_CO_COUNTER_REDUCER_NUM);
+        String reducerNum = conf.get(WORD_COUNTER_REDUCER_NUM);
         Job job = new Job(conf);
         job.setJarByClass(JpWordCounter.class);
         TextInputFormat.addInputPath(job, new Path(in));
         FileOutputFormat.setOutputPath(job, new Path(out));
+        job.setMapperClass(TokenizeMapper.class);
+        job.setMapOutputValueClass(IntWritable.class);
+        job.setMapOutputKeyClass(Text.class);
         if (tfidfFlag) {
-            job.setMapperClass(CoCounteMapper.class);
-            job.setReducerClass(CoCounteReducerTFIDF.class);
+            job.setReducerClass(TokenizeReducerTFIDF.class);
+            job.setOutputValueClass(DoubleWritable.class);
         } else {
-            job.setMapperClass(CoCounteMapper.class);
-            job.setReducerClass(CoCounteReducer.class);
+            job.setReducerClass(TokenizeReducer.class);
+            job.setOutputValueClass(IntWritable.class);
         }
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
         job.setNumReduceTasks(Integer.valueOf(reducerNum));
         return job.waitForCompletion(true);
     }

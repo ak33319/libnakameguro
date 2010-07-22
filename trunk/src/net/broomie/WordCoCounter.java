@@ -99,7 +99,8 @@ public final class WordCoCounter extends Configured implements Tool {
         job.setReducerClass(TokenizeReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        job.setNumReduceTasks(Integer.valueOf(reducerNum));
+        //job.setNumReduceTasks(Integer.valueOf(reducerNum));
+        job.setNumReduceTasks(Integer.valueOf(1));
         boolean rv = job.waitForCompletion(true);
         if (rv) {
             Counters counters = job.getCounters();
@@ -140,7 +141,8 @@ public final class WordCoCounter extends Configured implements Tool {
         }
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        job.setNumReduceTasks(Integer.valueOf(reducerNum));
+        //job.setNumReduceTasks(Integer.valueOf(reducerNum));
+        job.setNumReduceTasks(Integer.valueOf(1));
         return job.waitForCompletion(true);
     }
 

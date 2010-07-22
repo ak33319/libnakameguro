@@ -31,7 +31,7 @@ import static net.broomie.ConstantsClass.PROP_SEN_CONF;
 import static net.broomie.ConstantsClass.MAX_LINE_LENGTH;
 
 /**
- * The Mapper class for tokenizing a Japanese document.
+ * The Mapper class for creating DFDB for Japanese documents.
  * @author kimura
  *
  */
@@ -70,23 +70,20 @@ public final class DFMapper
     @Override
         public void map(Object key, Text value, Context context)
         throws IOException, InterruptedException {
-        Configuration conf = context.getConfiguration();
-        String maxLineLengthBuf = conf.get(MAX_LINE_LENGTH);
-        int maxLineLength = Integer.valueOf(maxLineLengthBuf);
+        //Configuration conf = context.getConfiguration();
+        //String maxLineLengthBuf = conf.get(MAX_LINE_LENGTH);
+        //int maxLineLength = Integer.valueOf(maxLineLengthBuf);
         String buf = value.toString();
         String[] result =
-            tokenizer.getToken(buf, EnumSet.of(GoSenTokenizer.ExtractType.Noun));
+            tokenizer.getToken(buf,
+                    EnumSet.of(GoSenTokenizer.ExtractType.Noun));
         TreeSet<String> uniqWords = new TreeSet<String>();
         for (String token : result) {
-            //word.set(token);
-            //context.write(word, ONE);
             uniqWords.add(token);
-            System.err.println(token);
         }
-            System.err.println("======");
         for (String token : uniqWords) {
-            System.err.println(token);
+            word.set(token);
+            context.write(word, ONE);
         }
-        System.err.println("\n");
     }
 }
