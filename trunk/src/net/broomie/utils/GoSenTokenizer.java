@@ -93,18 +93,47 @@ public class GoSenTokenizer {
                     if (pos.equals(nounDef)) {
                         if (type.contains(ExtractType.Noun)) {
                             result.add(token.getSurface());
-                            }
+                        }
                     } else if (pos.equals(verbDef)) {
                         if (type.contains(ExtractType.Verb)) {
                             result.add(token.getSurface());
-                            }
+                        }
                     } else if (pos.equals(adjDef)) {
                         if (type.contains(ExtractType.Adj)) {
                             result.add(token.getSurface());
-                            }
+                        }
                     } else if (pos.equals(unkDef)) {
                         if (type.contains(ExtractType.Unk)) {
                             result.add(token.getSurface());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return (String[]) result.toArray(new String[0]);
+    }
+
+    public final String[] getCompoundNoun(String str) {
+        ArrayList<String> result = new ArrayList<String>();
+        ArrayList<String> nouns = new ArrayList<String>();
+        try {
+            List<Token> tokens = tagger.analyze(str);
+            if (tokens != null) {
+                for (Token token : tokens) {
+                    String pos = token.getMorpheme().toString().substring(0, 2);
+                    if (pos.equals(nounDef)) {
+                        nouns.add(token.getSurface());
+                    } else {
+                        if (nouns.size() > 0) {
+                            StringBuilder nounBuf = new StringBuilder();
+                            for (String noun : nouns) {
+                                nounBuf.append(noun);
+                            }
+                            result.add(nounBuf.toString());
+                            nouns.clear();
                         }
                     }
                 }

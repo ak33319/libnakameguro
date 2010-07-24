@@ -137,7 +137,8 @@ public final class JpWordCounter extends Configured implements Tool {
         job.setJarByClass(JpWordCounter.class);
         TextInputFormat.addInputPath(job, new Path(in));
         FileOutputFormat.setOutputPath(job, new Path(out));
-        job.setMapperClass(TokenizeMapper.class);
+        //job.setMapperClass(TokenizeMapper.class);
+        job.setMapperClass(DFMapper.class);
         job.setMapOutputValueClass(IntWritable.class);
         job.setMapOutputKeyClass(Text.class);
         if (tfidfFlag) {
