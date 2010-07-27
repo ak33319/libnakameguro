@@ -1,21 +1,3 @@
-/**
-* Copyright 2010 Shunya KIMURA <brmtrain@gmail.com>
-*
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-*/
-
 package net.broomie.mapper;
 
 import java.io.IOException;
@@ -37,7 +19,7 @@ import static net.broomie.ConstantsClass.NUM_OF_AROUND_WORD;
  * @author kimura
  *
  */
-public final class CoCounteMapper
+public final class CoCounteMapper2
             extends Mapper<Object, Text, Text, Text> {
 
     /** the Text object for key of Mapper. */
@@ -53,7 +35,7 @@ public final class CoCounteMapper
     private Pattern pattern = Pattern.compile("^[0-9]+$");
 
     /** The constructor for CoCounterMapper class. */
-    private CoCounteMapper() { }
+    private CoCounteMapper2() { }
 
     /**
      * The setup method for TokenizeMapper.
@@ -87,29 +69,20 @@ public final class CoCounteMapper
             buf = buf.substring(0, maxLineLength);
         }
         buf = net.broomie.utils.Normalizer.normalize(buf);
-        String[] result = tokenizer.getToken(buf, EnumSet.of(GoSenTokenizer.ExtractType.Noun, GoSenTokenizer.ExtractType.Adj));
-        int resultLength = result.length;
-        for (int i = 0; i < resultLength; i++) {
-            Matcher matcher = pattern.matcher(result[i]);
-            if (!matcher.matches()) {
-                targetToken.set(result[i]);
-                for (int j = 1; j <= numOfAroundWords; j++) {
-                    if (i - j >= 0) {
-                        matcher = pattern.matcher(result[i - j]);
-                        if (!matcher.matches()) {
-                            aroundToken.set(result[i - j]);
-                            context.write(targetToken, aroundToken);
-                        }
-                    }
-                    if (i + j < resultLength) {
-                        matcher = pattern.matcher(result[i + j]);
-                        if (!matcher.matches()) {
-                            aroundToken.set(result[i + j]);
-                            context.write(targetToken, aroundToken);
-                        }
-                    }
-                }
-            }
-        }
+        //String[] result = tokenizer.getToken(buf, EnumSet.of(GoSenTokenizer.ExtractType.Noun, GoSenTokenizer.ExtractType.Adj));
+	tokenizer.extractToken2(buf);
+
+	String[] nouns = tokenizer.getNoun();
+	String[] adjs = tokenizer.getAdj();
+	for (String noun : nouns) {
+	    Matcher matcher = pattern.matcher(noun);
+	    if (!matcher.matches()) {
+		targetToken.set(noun);
+		for (String adj : adjs) {
+		    aroundToken.set(adj);
+		    context.write(targetToken, aroundToken);
+		}
+	    }
+	}
     }
 }

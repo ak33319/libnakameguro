@@ -70,13 +70,13 @@ public final class DFMapper
     @Override
         public void map(Object key, Text value, Context context)
         throws IOException, InterruptedException {
-        //Configuration conf = context.getConfiguration();
-        //String maxLineLengthBuf = conf.get(MAX_LINE_LENGTH);
-        //int maxLineLength = Integer.valueOf(maxLineLengthBuf);
+        Configuration conf = context.getConfiguration();
+        String maxLineLengthBuf = conf.get(MAX_LINE_LENGTH);
+        int maxLineLength = Integer.valueOf(maxLineLengthBuf);
         String buf = value.toString();
         //String[] result =
-            //tokenizer.getToken(buf,
-//                    EnumSet.of(GoSenTokenizer.ExtractType.Noun));
+	//tokenizer.getToken(buf,
+	//		   EnumSet.of(GoSenTokenizer.ExtractType.Noun,));
         String[] result = tokenizer.getCompoundNoun(buf);
         TreeSet<String> uniqWords = new TreeSet<String>();
         for (String token : result) {
