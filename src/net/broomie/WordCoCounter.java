@@ -39,8 +39,11 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import net.broomie.mapper.TokenizeMapper;
+import net.broomie.mapper.DFMapper;
 import net.broomie.mapper.CoCounteMapper;
+import net.broomie.mapper.CoCounteMapper2;
 import net.broomie.reducer.CoCounteReducerTFIDF;
+import net.broomie.reducer.CoCounteReducerMI;
 import net.broomie.reducer.CoCounteReducer;
 import net.broomie.reducer.TokenizeReducer;
 
@@ -95,12 +98,13 @@ public final class WordCoCounter extends Configured implements Tool {
         }
         fs.close();
         FileOutputFormat.setOutputPath(job, new Path(dfdb));
-        job.setMapperClass(TokenizeMapper.class);
+        //job.setMapperClass(TokenizeMapper.class);
+	job.setMapperClass(DFMapper.class);
         job.setReducerClass(TokenizeReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         //job.setNumReduceTasks(Integer.valueOf(reducerNum));
-        job.setNumReduceTasks(Integer.valueOf(1));
+        job.setNumReduceTasks(Integer.valueOf(8));
         boolean rv = job.waitForCompletion(true);
         if (rv) {
             Counters counters = job.getCounters();
@@ -132,17 +136,18 @@ public final class WordCoCounter extends Configured implements Tool {
         job.setJarByClass(WordCoCounter.class);
         TextInputFormat.addInputPath(job, new Path(in));
         FileOutputFormat.setOutputPath(job, new Path(out));
+	//job.setMapperClass(CoCounteMapper.class);
+	job.setMapperClass(CoCounteMapper2.class);
         if (tfidfFlag) {
-            job.setMapperClass(CoCounteMapper.class);
-            job.setReducerClass(CoCounteReducerTFIDF.class);
+            //job.setReducerClass(CoCounteReducerTFIDF.class);
+	    job.setReducerClass(CoCounteReducerMI.class);
         } else {
-            job.setMapperClass(CoCounteMapper.class);
             job.setReducerClass(CoCounteReducer.class);
         }
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
         //job.setNumReduceTasks(Integer.valueOf(reducerNum));
-        job.setNumReduceTasks(Integer.valueOf(1));
+        job.setNumReduceTasks(Integer.valueOf(8));
         return job.waitForCompletion(true);
     }
 

@@ -30,25 +30,26 @@ import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
+import net.broomie.utils.MyPriorityQueue;
 import static net.broomie.ConstantsClass.PROP_LINE_NUM;
 import static net.broomie.ConstantsClass.LIB_NAKAMEGURO_CONF;
 /**
  * The reduce class for counting co-occurrence for Japanese sentence.
  * @author kimura
  */
-public class TokenizeReducerTFIDF
-    extends Reducer<Text, IntWritable, Text, DoubleWritable> {
+public class CoCounteReducerMI extends Reducer<Text, Text, Text, Text> {
 
     /** The Text object for saving each value.*/
-    private DoubleWritable val = new DoubleWritable();
+    private Text val = new Text();
 
     /** The Initial hash map size for wordCount. */
     private final int hashMapInitSiz = 100000;
+
+    /** The Initial queue size.*/
+    private final int queueInitSiz = 100;
 
     /** Number of the line for input file. */
     private double lineNum = 0.0;
@@ -103,6 +104,7 @@ public class TokenizeReducerTFIDF
                 wordCount.put(wordCountBuf[0],
                         Integer.valueOf(wordCountBuf[1]));
             }
+
         }
         Configuration conf = context.getConfiguration();
         FileSystem hdfs = FileSystem.get(conf);
@@ -141,31 +143,50 @@ public class TokenizeReducerTFIDF
      * @exception IOException Exception for open input file.
      * @exception InterruptedException exception.
      */
-    public final void reduce(Text key, Iterable<IntWritable> values,
-            Context context)
+    public final void reduce(Text key, Iterable<Text> values, Context context)
         throws IOException, InterruptedException {
-        LinkedHashMap<String, Integer> counter =
-            new LinkedHashMap<String, Integer>(hashMapInitSiz);
-        String keyToken = key.toString();
-        for (IntWritable valBuf : values) {
-            if (!counter.containsKey(keyToken)) {
-                counter.put(keyToken, valBuf.get());
+
+        LinkedHashMap<String, Double> counter =
+            new LinkedHashMap<String, Double>(hashMapInitSiz);
+        for (Text wordBuf : values) {
+            String word = wordBuf.toString();
+            if (!counter.containsKey(word)) {
+                counter.put(word, 1.0);
             } else {
-                counter.put(keyToken,
-                        counter.get(keyToken).intValue() + valBuf.get());
+                counter.put(word, counter.get(word).intValue() + 1.0);
             }
         }
-        Iterator<String> counterItr = counter.keySet().iterator();
-        while (counterItr.hasNext()) {
-            String token = counterItr.next();
-            double tf = counter.get(token);
-            if (wordCount.containsKey(token)) {
-            int df = wordCount.get(token);
-            //double score = tf * Math.log10(lineNum / df);
-	    double score = tf / df;
-            val.set(score);
-            context.write(new Text(token), val);
+        MyPriorityQueue queue = new MyPriorityQueue(queueInitSiz);
+        Iterator<String> aroundWordsItr = counter.keySet().iterator();
+        while (aroundWordsItr.hasNext()) {
+            String aroundWord = aroundWordsItr.next();
+            if (!aroundWord.equals(key.toString())) {
+                double tf = counter.get(aroundWord);
+		if (wordCount.containsKey(aroundWord)) {
+		    int a = 0;
+		    if (wordCount.containsKey(key.toString())) {
+			a = wordCount.get(key.toString());
+		    }
+		    int b = wordCount.get(aroundWord);
+		    double score = Math.log((lineNum * tf) / a * b);
+                    //score =
+                    // score / Math.pow(wordCount.get(aroundWord) + 10.0, 0.8);
+                    //int df = wordCount.get(aroundWord) + 1;
+                    //double score = tf * Math.log(lineNum / df);
+                    queue.add(aroundWord, score);
+		}
             }
         }
+        StringBuilder resultVal = new StringBuilder();
+        MyPriorityQueue.Entity ent;
+        while ((ent = queue.poll()) != null) {
+            if (resultVal.length() > 0) {
+                resultVal.insert(0, "\t");
+            }
+            String resultScore = String.format("%.2f", ent.getVal());
+            resultVal.insert(0, ent.getKey() + ":" + resultScore);
+        }
+        val.set(resultVal.toString());
+        context.write(key, val);
     }
 }

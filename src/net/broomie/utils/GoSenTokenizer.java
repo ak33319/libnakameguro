@@ -62,6 +62,14 @@ public class GoSenTokenizer {
         Unk,
     }
 
+    private ArrayList<String> nounArray;
+
+    private ArrayList<String> verbArray;
+
+    private ArrayList<String> adjArray;
+
+    private ArrayList<String> unkArray;
+
     /** The Tagger object for extract token from Japanese document. */
     private StringTagger tagger;
 
@@ -75,6 +83,107 @@ public class GoSenTokenizer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+	nounArray = new ArrayList<String>(100);
+	verbArray = new ArrayList<String>(100);
+	adjArray = new ArrayList<String>(100);
+	unkArray = new ArrayList<String>(100);
+    }
+
+    private final void clear() {
+	nounArray.clear();
+	verbArray.clear();
+	adjArray.clear();
+	unkArray.clear();
+    }
+
+    public final void extractToken(String str) {
+	clear();
+	try {
+	    List<Token> tokens = tagger.analyze(str);
+	    if (tokens != null) {
+		for (Token token : tokens) {
+		    String pos = token.getMorpheme(). toString().substring(0, 2);
+		    if (pos.equals(nounDef)) {
+			nounArray.add(token.getSurface());
+                    } else if (pos.equals(verbDef)) {
+			verbArray.add(token.getSurface());
+                    } else if (pos.equals(adjDef)) {
+			adjArray.add(token.getSurface());
+                    } else if (pos.equals(unkDef)) {
+			unkArray.add(token.getSurface());
+                    }
+		}
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+    }
+
+    private final String createCompoundNoun(ArrayList<String> nouns) {
+	StringBuilder cmpNoun = new StringBuilder();
+	for (String noun : nouns) {
+	    cmpNoun.append(noun);
+	}
+	return cmpNoun.toString();
+    }
+
+    public final void extractToken2(String str) {
+	clear();
+	ArrayList<String> compoundNoun = new ArrayList<String>();
+	try {
+	    List<Token> tokens = tagger.analyze(str);
+	    if (tokens != null) {
+		for (Token token : tokens) {
+		    String pos = token.getMorpheme().toString().substring(0, 2);
+		    String baseToken = token.getMorpheme().getBasicForm();
+		    if (pos.equals(nounDef)) {
+			compoundNoun.add(baseToken);
+                    } else if (pos.equals(verbDef)) {
+			verbArray.add(baseToken);
+			if (compoundNoun.size() > 0) {
+			    nounArray.add(createCompoundNoun(compoundNoun));
+			    compoundNoun.clear();
+			}
+                    } else if (pos.equals(adjDef)) {
+			adjArray.add(baseToken);
+			if (compoundNoun.size() > 0) {
+			    nounArray.add(createCompoundNoun(compoundNoun));
+			    compoundNoun.clear();
+			}
+                    } else if (pos.equals(unkDef)) {
+			unkArray.add(baseToken);
+			if (compoundNoun.size() > 0) {
+			    nounArray.add(createCompoundNoun(compoundNoun));
+			    compoundNoun.clear();
+			}
+                    } else {
+			if (compoundNoun.size() > 0) {
+			    nounArray.add(createCompoundNoun(compoundNoun));
+			    compoundNoun.clear();
+			}
+		    }
+		}
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+    }
+
+    public final String[] getNoun() {
+	return (String[]) nounArray.toArray(new String[0]);
+    }
+
+    public final String[] getVerb() {
+	return (String[]) verbArray.toArray(new String[0]);
+    }
+
+    public final String[] getAdj() {
+	return (String[]) adjArray.toArray(new String[0]);
+    }
+
+    public final String[] getUnk() {
+	return (String[]) unkArray.toArray(new String[0]);
     }
 
     /**
